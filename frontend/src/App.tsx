@@ -1,6 +1,7 @@
 import {useEffect} from 'react'
-import './App.css'
 import axios from "axios";
+import {Container} from "react-bootstrap";
+import {Outlet} from "react-router-dom";
 
 function App() {
 
@@ -20,7 +21,9 @@ function App() {
   }, []);
 
   return (
-    <p>XDDD</p>
+      <Container>
+        <Outlet/>
+      </Container>
   )
 }
 
