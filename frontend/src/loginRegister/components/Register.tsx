@@ -58,6 +58,7 @@ export default function Register() {
               <Form.Group as={Col} md="5" controlId="validationFormik03" className="mt-2">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
+                    autoComplete="no"
                     type="password"
                     name="password"
                     value={values.password}
@@ -71,6 +72,7 @@ export default function Register() {
               <Form.Group as={Col} md="5" controlId="validationFormik04" className="mt-2">
                 <Form.Label>Repeat password</Form.Label>
                 <Form.Control
+                    autoComplete="no"
                     type="password"
                     name="repeat_password"
                     value={values.repeat_password}

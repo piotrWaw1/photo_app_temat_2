@@ -27,6 +27,7 @@ export default function Login() {
               <Form.Group as={Col} md="5" controlId="validationFormik01">
                 <Form.Label>E-mial</Form.Label>
                 <Form.Control
+                    autoComplete="yes"
                     type="email"
                     name="email"
                     value={values.email}
@@ -40,6 +41,7 @@ export default function Login() {
               <Form.Group as={Col} md="5" controlId="validationFormik02" className="mt-2">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
+                    autoComplete="yes"
                     type="password"
                     name="password"
                     value={values.password}
