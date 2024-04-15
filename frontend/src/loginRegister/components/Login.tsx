@@ -1,9 +1,11 @@
 import * as yup from "yup";
 import {Formik} from "formik";
 import {Button, Col, Form} from "react-bootstrap";
+import useLogin from "../../hooks/useLogin.tsx";
 
 export default function Login() {
 
+  const {setSession} = useLogin()
   const schema = yup.object().shape({
     email: yup.string().email().required('E-mail is required'),
     password: yup.string().required('Password is required'),
@@ -12,7 +14,7 @@ export default function Login() {
   return (
       <Formik
           validationSchema={schema}
-          onSubmit={console.log}
+          onSubmit={setSession}
           initialValues={{
             email: '',
             password: '',
@@ -23,7 +25,7 @@ export default function Login() {
                 noValidate
                 onSubmit={handleSubmit}
                 className='d-flex flex-column align-items-center justify-content-center'
-              >
+            >
               <Form.Group as={Col} md="5" controlId="validationFormik01">
                 <Form.Label>E-mial</Form.Label>
                 <Form.Control

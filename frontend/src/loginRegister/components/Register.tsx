@@ -1,9 +1,12 @@
 import {Button, Col, Form} from "react-bootstrap";
 import {Formik} from "formik";
 import * as yup from "yup";
+import useRegister from "../../hooks/useRegister.tsx";
 
 export default function Register() {
 
+  const {register} = useRegister()
+  
   const schema = yup.object().shape({
     username: yup.string().min(4).required('User name is required'),
     email: yup.string().email('This is not an email').required('E-mail is required'),
@@ -15,7 +18,7 @@ export default function Register() {
   return (
       <Formik
           validationSchema={schema}
-          onSubmit={console.log}
+          onSubmit={register}
           initialValues={{
             username: '',
             email: '',

@@ -1,5 +1,6 @@
-import {createContext, ReactNode, useState} from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {jwtDecode} from "jwt-decode";
+import axios from "axios";
 
 interface TokenResponse {
   access: string;
@@ -33,7 +34,7 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
   const [tokens, setTokens] = useState<TokenResponse | null>(() => getToken())
 
   const saveToken = (token: TokenResponse) => { // use when login
-    localStorage.setItem('authTokens', JSON.stringify(token))
+    sessionStorage.setItem('authTokens', JSON.stringify(token))
     setTokens(token)
 
     const tokenDecode: TokenDecode = jwtDecode(token.access)
@@ -41,10 +42,38 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
   }
 
   const removeToken = () => { // use when logout
-    localStorage.removeItem('authTokens')
+    sessionStorage.removeItem('authTokens')
     setTokens(null)
     setUserId(null)
   }
+
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const {data, status} = await axios.post("/auth/token/refresh", {
+          refresh: tokens?.refresh,
+        })
+        if (status === 200) {
+          sessionStorage.setItem('authTokens', JSON.stringify(data))
+          setUserId(getUserFromToken())
+          setTokens(getToken())
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          removeToken()
+        }
+      }
+    }
+
+    const REFRESH_INTERVAL = 1000 * 60 * 10; // 10 minutes
+    const interval = setInterval(() => {
+      if (tokens) {
+        void updateToken();
+      }
+    }, REFRESH_INTERVAL);
+    return () => clearInterval(interval);
+  }, [tokens]);
 
   const contextData: SessionContextData = {
     userID,
@@ -61,12 +90,12 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
 }
 
 function getToken(): TokenResponse | null {
-  const tokens = localStorage.getItem('authTokens')
+  const tokens = sessionStorage.getItem('authTokens')
   return tokens ? JSON.parse(tokens) : null
 }
 
 function getUserFromToken(): number | null {
-  const token = localStorage.getItem('authTokens')
+  const token = sessionStorage.getItem('authTokens')
   if (token) {
     const decodeAccess: TokenDecode = jwtDecode(JSON.parse(token).access)
     return decodeAccess.user_id
