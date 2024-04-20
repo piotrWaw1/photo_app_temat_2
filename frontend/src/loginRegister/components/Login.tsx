@@ -27,7 +27,7 @@ export default function Login() {
                 className='d-flex flex-column align-items-center justify-content-center'
             >
               <Form.Group as={Col} md="5" controlId="validationFormik01">
-                <Form.Label>E-mial</Form.Label>
+                <Form.Label>E-mail</Form.Label>
                 <Form.Control
                     autoComplete="yes"
                     type="email"
