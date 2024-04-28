@@ -22,4 +22,5 @@ urlpatterns = [
     path('', GetRoutesView.as_view(), name='getRoutes'),
     path('admin/', admin.site.urls),
     path('auth/', include('log_reg.urls')),
+    path('annotations/', include('annotations.urls')),
 ]
