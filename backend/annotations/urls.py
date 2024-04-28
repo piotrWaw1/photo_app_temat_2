@@ -1,8 +1,9 @@
 from django.urls import path
 
-from .views import your_new_endpoint
+from .views import *
 
 urlpatterns = [
-    path('your-new-endpoint-url', your_new_endpoint, name='your_new_endpoint'),
+    path('annotation', AnnotationView.as_view(), name='annotation'),
+
 ]
 
