@@ -12,6 +12,7 @@ import PublicRoute from "./utils/PublicRoute.tsx";
 import PrivateRoute from "./utils/PrivateRoute.tsx";
 import Error from "./components/Error.tsx";
 import Home from "./dashboard/Home.tsx";
+import Annotation from "./dashboard/Annotation.tsx";
 
 axios.defaults.baseURL = "http://localhost:8000"
 
@@ -26,8 +27,12 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <Home/>
+      },
+      {
+        path: '/annotation',
+        element: <Annotation/>
       }
-    ]
+    ],
   },
   {
     path: '/login',

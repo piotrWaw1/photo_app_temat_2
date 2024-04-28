@@ -22,6 +22,9 @@ export default function HeaderLog(){
               <LinkContainer to="/edit">
                 <Nav.Link>Something 2</Nav.Link>
               </LinkContainer>
+              <LinkContainer to="/annotation">
+                <Nav.Link>Annotation</Nav.Link>
+              </LinkContainer>
             </Nav>
               <Nav.Link onClick={removeToken}>Log out</Nav.Link>
           </Navbar.Collapse>
