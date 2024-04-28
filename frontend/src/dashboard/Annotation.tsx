@@ -4,7 +4,7 @@ import axios from 'axios';
 const Annotation: React.FC = () => {
   const sendRequest = async () => {
     try {
-      const response = await axios.post('/annotations/annotation', {
+      const response = await axios.post('/annotations/photos', {
         // dane, jeśli potrzebne
       });
 

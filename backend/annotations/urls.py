@@ -3,7 +3,8 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('annotation', AnnotationView.as_view(), name='annotation'),
-
+    path('photos', PhotoCreateAPIView.as_view(), name='photo_create'),
 ]
+
+
 
