@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from .models import Photo
 from .serializer import PhotoSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 import os
 
 class PhotoCreateAPIView(APIView):
@@ -48,3 +49,20 @@ class PhotoCreateAPIView(APIView):
         serializer = PhotoSerializer(photos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def delete(self, request, *args, **kwargs):
+        photo_id = kwargs.get('pk')
+        try:
+            photo = Photo.objects.get(pk=photo_id)
+        except Photo.DoesNotExist:
+            return Response({"error": "Photo not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if photo.owner != request.user:
+            raise PermissionDenied("You do not have permission to delete this photo.")
+        image_path = photo.image.path
+        
+        if os.path.exists(image_path):
+            os.remove(image_path)
+            photo.delete()
+            return Response({"message": "Photo and image deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"error": "Image file not found"}, status=status.HTTP_404_NOT_FOUND)
