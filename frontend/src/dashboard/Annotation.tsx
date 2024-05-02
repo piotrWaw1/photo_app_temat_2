@@ -15,11 +15,13 @@ const Annotation: React.FC = () => {
     setSelectedImageFile(selectedFile);
     e.target.value = '';
     if (selectedFile) {
-        const maxSize = 50000 * 1024; // 500KB in bytes
+        const maxSize = 50000 * 1024; // 50000KB in bytes
         if (selectedFile.size >= maxSize) {
           console.log("File size exceeds 50000KB limit.");
+          setSelectedImageFile(null);
         } else if (!allowedFormats.includes(selectedFile.type)) {
           console.log("Wrong file format.");
+          setSelectedImageFile(null);
         } 
     }
   };
