@@ -16,8 +16,8 @@ export default function HeaderLog(){
               <LinkContainer to="/">
                 <Nav.Link>Home</Nav.Link>
               </LinkContainer>
-              <LinkContainer to="/add">
-                <Nav.Link>Something</Nav.Link>
+              <LinkContainer to="/images">
+                <Nav.Link>LIST_ALL_IMAGES</Nav.Link>
               </LinkContainer>
               <LinkContainer to="/edit">
                 <Nav.Link>Something 2</Nav.Link>

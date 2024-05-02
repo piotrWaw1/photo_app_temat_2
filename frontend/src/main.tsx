@@ -13,6 +13,7 @@ import PrivateRoute from "./utils/PrivateRoute.tsx";
 import Error from "./components/Error.tsx";
 import Home from "./dashboard/Home.tsx";
 import Annotation from "./dashboard/Annotation.tsx";
+import AllUserImages from "./dashboard/AllUserImages.tsx"
 
 axios.defaults.baseURL = "http://localhost:8000"
 
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: '/annotation',
         element: <Annotation/>
+      },
+      {
+        path: '/images',
+        element: <AllUserImages/>
       }
     ],
   },

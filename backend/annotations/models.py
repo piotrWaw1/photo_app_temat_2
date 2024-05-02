@@ -13,6 +13,7 @@ class Photo(models.Model):
     image = models.ImageField(upload_to='photos/', blank=True, null=True)
     title = models.CharField(max_length=100, blank=False, null=False)
     uploaded_on = models.DateTimeField(auto_now_add=True)
+    image_url = models.ImageField(upload_to=upload_to, blank=True, null=True)
 
 class Annotation(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='annotations')

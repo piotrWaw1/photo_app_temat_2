@@ -21,7 +21,7 @@ class PhotoCreateAPIView(APIView):
             if file.size > 50000 * 1024:  # 50000KB 
                 return False
             return True
-
+    
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         image = request.FILES.get("image")
@@ -42,4 +42,9 @@ class PhotoCreateAPIView(APIView):
             serializer.save(owner=request.user, owner_id=request.user.id, title=request.data["title"])  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, *args, **kwargs):
+        photos = Photo.objects.filter(owner=request.user)
+        serializer = PhotoSerializer(photos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
