@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from .routesView import GetRoutesView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', GetRoutesView.as_view(), name='getRoutes'),
@@ -24,3 +26,6 @@ urlpatterns = [
     path('auth/', include('log_reg.urls')),
     path('annotations/', include('annotations.urls')),
 ]
+
+# For media upload
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
