@@ -2,18 +2,20 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "./index.css"
 import axios from "axios";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
-import LoginFormContainer from "./loginRegister/LoginFormContainer.tsx";
-import RegisterFormContainer from "./loginRegister/RegisterFormContainer.tsx";
 import {SessoinProvider} from "./context/SessionContext.tsx";
 import {ToasterProvider} from "./context/ToasterContext.tsx";
 import PublicRoute from "./utils/PublicRoute.tsx";
 import PrivateRoute from "./utils/PrivateRoute.tsx";
 import Error from "./components/Error.tsx";
 import Home from "./dashboard/Home.tsx";
-import Annotation from "./dashboard/Annotation.tsx";
-import AllUserImages from "./dashboard/AllUserImages.tsx"
+import AuthContainer from "./loginRegister/AuthContainer.tsx";
+import Login from "./loginRegister/components/Login.tsx";
+import Register from "./loginRegister/components/Register.tsx";
+import AddImage from "./components/addImage/AddImage.tsx";
+
 
 axios.defaults.baseURL = "http://localhost:8000"
 
@@ -30,28 +32,27 @@ const router = createBrowserRouter([
         element: <Home/>
       },
       {
-        path: '/annotation',
-        element: <Annotation/>
+        path: '/addimage',
+        element: <AddImage/>
       },
-      {
-        path: '/images',
-        element: <AllUserImages/>
-      }
     ],
   },
   {
-    path: '/login',
+    path: '/',
     element:
         <PublicRoute>
-          <LoginFormContainer/>
-        </PublicRoute>
-  },
-  {
-    path: '/register',
-    element:
-        <PublicRoute>
-          <RegisterFormContainer/>
-        </PublicRoute>
+          <AuthContainer/>
+        </PublicRoute>,
+    children: [
+      {
+        path: "/login",
+        element: <Login/>
+      },
+      {
+        path: "/register",
+        element: <Register/>
+      }
+    ]
   },
   {
     path: '*',

@@ -1,0 +1,9 @@
+.img-size {
+    width: 280px;
+    height: 180px;
+    object-fit: contain;
+}
+
+.card-width{
+    width: 18rem;
+}
