@@ -7,7 +7,6 @@ export default function useAddImg() {
   const sendImg = async (value: FormikValues) => {
     try {
       const dataToSend = {title: value.title, image: value.img_file[0]}
-
       const response = await axios.post(`/annotations/photos`, dataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
