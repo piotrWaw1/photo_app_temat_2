@@ -6,6 +6,7 @@ from .serializer import PhotoSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 import os
+from ultralytics import YOLO
 
 
 class PhotoCreateAPIView(APIView):
@@ -66,3 +67,45 @@ class PhotoCreateAPIView(APIView):
             return Response({"message": "Photo and image deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"error": "Image file not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+class PhotoAnnotateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PhotoSerializer
+
+    def get(self, request, *args, **kwargs):
+        photos = Photo.objects.filter(owner=request.user)
+        serializer = PhotoSerializer(photos, many=True)
+
+        #load model
+        model = YOLO('yolov8x.pt')
+
+        #getting photo
+        photo_id = kwargs.get('pk')
+        photo = Photo.objects.get(pk=photo_id)
+        image_url = photo.image.url
+        img_path = 'http://localhost:8000/'+image_url
+        results = model(img_path)
+
+        #annotate image
+        object_name = "None"
+        if results[0].boxes:
+            box = results[0].boxes[0]
+            class_id = int(box.cls)
+            object_name = model.names[class_id]
+
+
+        #create bounding box for detected image
+        #boxes = results[0].boxes  # Boxes object for bounding box outputs
+        # masks = results[0].masks  # Masks object for segmentation masks outputs
+        # keypoints = results[0].keypoints  # Keypoints object for pose outputs
+        # probs = results[0].probs  # Probs object for classification outputs
+        # obb = results[0].obb  # Oriented boxes object for OBB outputs
+        # results[0].show()
+        # results[0].save(filename='result.jpg')
+
+        return Response(object_name, status=status.HTTP_200_OK)
+
+

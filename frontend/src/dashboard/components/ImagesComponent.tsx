@@ -41,9 +41,21 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
     }
   }
 
-  const annotateImage = (id: number) => {
-    console.log(id)
-  };
+  const annotateImage = async (id: number) => {
+    try {
+      const response = await axios.get(`/annotations/photos_edit/${id}`, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: 'Bearer ' + String(tokens?.access),
+        }
+      })
+      console.log(response.data)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
 
 
   return (
@@ -57,7 +69,7 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
                   No annotation found
                 </Card.Text>
                 <Button variant="primary" onClick={() => {void imgDelete(img.id)}}>Delete</Button>
-                <Button variant="primary" className="mx-2" onClick={() => annotateImage(img.id)}>Annotate</Button>
+                <Button variant="primary" className="mx-2" onClick={() => {void annotateImage(img.id)}}>Annotate</Button>
 
               </Card.Body>
               <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
