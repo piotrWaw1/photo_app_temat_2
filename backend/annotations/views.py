@@ -80,7 +80,12 @@ class PhotoAnnotateAPIView(APIView):
         serializer = PhotoSerializer(photos, many=True)
 
         #load model
-        model = YOLO('yolov8x.pt')
+        '''Model list
+        yolov8n [n s m k x]
+        yolov8n-seg [n s m k x]
+        yolov8n-cls [n s m k x]
+        '''
+        model = YOLO('yolov8n.pt')
 
         #getting photo
         photo_id = kwargs.get('pk')
@@ -90,7 +95,7 @@ class PhotoAnnotateAPIView(APIView):
         results = model(img_path)
 
         #annotate image
-        #detected_objects = [] dla listy
+        #detected_objects = [] for lists
         detected_objects = set()
 
         #return from model list
@@ -108,7 +113,7 @@ class PhotoAnnotateAPIView(APIView):
                     class_id = int(box.cls)
                     object_name = model.names[class_id]
 
-                    #append dla listy
+                    #detected_objects.append(object_name) for lists
                     detected_objects.add(object_name)
 
         return Response(detected_objects, status=status.HTTP_200_OK)
