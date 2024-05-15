@@ -90,22 +90,27 @@ class PhotoAnnotateAPIView(APIView):
         results = model(img_path)
 
         #annotate image
-        object_name = "None"
-        if results[0].boxes:
-            box = results[0].boxes[0]
-            class_id = int(box.cls)
-            object_name = model.names[class_id]
+        #detected_objects = [] dla listy
+        detected_objects = set()
 
+        #return from model list
+        for result in results:
+            #making bounding boxes and saving to result.jpg
+            #boxes = result.boxes  # Boxes object for bounding box outputs
+            #masks = result.masks  # Masks object for segmentation masks outputs
+            #keypoints = result.keypoints  # Keypoints object for pose outputs
+            #probs = result.probs  # Probs object for classification outputs
+            #obb = result.obb  # Oriented boxes object for OBB outputs
+            #result.show()  # display to screen
+            #result.save(filename='result.jpg')  # save to disk
+            if result.boxes:
+                for box in result.boxes:
+                    class_id = int(box.cls)
+                    object_name = model.names[class_id]
 
-        #create bounding box for detected image
-        #boxes = results[0].boxes  # Boxes object for bounding box outputs
-        # masks = results[0].masks  # Masks object for segmentation masks outputs
-        # keypoints = results[0].keypoints  # Keypoints object for pose outputs
-        # probs = results[0].probs  # Probs object for classification outputs
-        # obb = results[0].obb  # Oriented boxes object for OBB outputs
-        # results[0].show()
-        # results[0].save(filename='result.jpg')
+                    #append dla listy
+                    detected_objects.add(object_name)
 
-        return Response(object_name, status=status.HTTP_200_OK)
+        return Response(detected_objects, status=status.HTTP_200_OK)
 
 
