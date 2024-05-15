@@ -41,6 +41,11 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
     }
   }
 
+  const annotateImage = (id: number) => {
+    console.log(id)
+  };
+
+
   return (
       data.map((img) => (
           <Col key={img.id} xs={12} md={6} lg={4} xxl={3} className="mb-3">
@@ -52,6 +57,8 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
                   No annotation found
                 </Card.Text>
                 <Button variant="primary" onClick={() => {void imgDelete(img.id)}}>Delete</Button>
+                <Button variant="primary" className="mx-2" onClick={() => annotateImage(img.id)}>Annotate</Button>
+
               </Card.Body>
               <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
             </Card>
