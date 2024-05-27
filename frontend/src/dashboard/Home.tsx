@@ -5,7 +5,7 @@ import {Container, Row} from "react-bootstrap";
 
 export default function Home() {
   const {getImg, imgData} = useImage()
-
+  console.log(imgData)
   useEffect(() => {
     void getImg()
   }, [getImg])
@@ -15,7 +15,7 @@ export default function Home() {
         <h2>Your Images</h2>
         <Container fluid>
           <Row>
-            {imgData ? <ImagesComponent data={imgData}/> : "No img"}
+            {imgData && imgData.length !== 0 ? <ImagesComponent data={imgData}/> : "No img"}
           </Row>
         </Container>
       </>

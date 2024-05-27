@@ -1,12 +1,12 @@
 import React from 'react';
 import axios from 'axios';
-import { useState, useContext } from 'react';
-import { useSessionContext } from '../hooks/useSessionContext';
+import {useState} from 'react';
+import {useSessionContext} from '../hooks/useSessionContext';
 
 
 const Annotation: React.FC = () => {
 
-  const { tokens } = useSessionContext();
+  const {tokens} = useSessionContext();
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const allowedFormats = ['image/jpeg', 'image/jfif', 'image/jpg', 'image/png', 'image/bmp', 'image/gif'];
 
@@ -15,14 +15,14 @@ const Annotation: React.FC = () => {
     setSelectedImageFile(selectedFile);
     e.target.value = '';
     if (selectedFile) {
-        const maxSize = 50000 * 1024; // 50000KB in bytes
-        if (selectedFile.size >= maxSize) {
-          console.log("File size exceeds 50000KB limit.");
-          setSelectedImageFile(null);
-        } else if (!allowedFormats.includes(selectedFile.type)) {
-          console.log("Wrong file format.");
-          setSelectedImageFile(null);
-        } 
+      const maxSize = 50000 * 1024; // 50000KB in bytes
+      if (selectedFile.size >= maxSize) {
+        console.log("File size exceeds 50000KB limit.");
+        setSelectedImageFile(null);
+      } else if (!allowedFormats.includes(selectedFile.type)) {
+        console.log("Wrong file format.");
+        setSelectedImageFile(null);
+      }
     }
   };
 
@@ -54,19 +54,19 @@ const Annotation: React.FC = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleImageUpload}>
-        <label htmlFor="uploadImage">Upload image</label>
-        <input
-          className=''
-          id='uploadImage'
-          type='file'
-          accept=".jpeg, .jpg, .png, .jfif, .bmp, .gif"
-          onChange={handleImageChange}
-        />
-        <input type='submit' value="Submit form" disabled={!selectedImageFile} />
-      </form>
-    </div>
+      <div>
+        <form onSubmit={handleImageUpload}>
+          <label htmlFor="uploadImage">Upload image</label>
+          <input
+              className=''
+              id='uploadImage'
+              type='file'
+              accept=".jpeg, .jpg, .png, .jfif, .bmp, .gif"
+              onChange={handleImageChange}
+          />
+          <input type='submit' value="Submit form" disabled={!selectedImageFile}/>
+        </form>
+      </div>
   );
 };
 

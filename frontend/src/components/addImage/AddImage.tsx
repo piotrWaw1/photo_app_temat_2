@@ -9,7 +9,7 @@ const MAX_FILE_SIZE = 50000 * 1024; // 50000KB in bytes
 
 export default function AddImage() {
 
-  const {sendImg} = useAddImg()
+  const {sendImg, loading} = useAddImg()
 
   const schema = yup.object().shape({
     title: yup.string().required('Title is required'),
@@ -76,7 +76,7 @@ export default function AddImage() {
                   {errors.img_file}
                 </Form.Control.Feedback>
               </Form.Group>
-              <Button type="submit" className='mt-3'>Submit</Button>
+              <Button disabled={loading} type="submit" className='mt-3'>Submit</Button>
             </Form>
         )}
       </Formik>
