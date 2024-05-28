@@ -15,6 +15,7 @@ import AuthContainer from "./loginRegister/AuthContainer.tsx";
 import Login from "./loginRegister/components/Login.tsx";
 import Register from "./loginRegister/components/Register.tsx";
 import AddImage from "./components/addImage/AddImage.tsx";
+import SingleImage from './dashboard/SingleImage.tsx';
 
 
 axios.defaults.baseURL = "http://localhost:8000"
@@ -31,6 +32,12 @@ const router = createBrowserRouter([
         path: '/',
         element: <Home/>
       },
+      ////
+      {
+        path: '/images',
+        element: <SingleImage/>
+      },
+      //////
       {
         path: '/addimage',
         element: <AddImage/>

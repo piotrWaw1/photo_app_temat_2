@@ -5,6 +5,7 @@ from .models import Photo
 from .serializer import PhotoSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 import os
 from ultralytics import YOLO
 
@@ -68,8 +69,15 @@ class PhotoCreateAPIView(APIView):
         else:
             return Response({"error": "Image file not found"}, status=status.HTTP_404_NOT_FOUND)
 
+class PhotoGetAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PhotoSerializer
 
-
+    def get(self, request, *args, **kwargs):
+        photo_id = kwargs.get('id')
+        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
+        serializer = PhotoSerializer(photo)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class PhotoAnnotateAPIView(APIView):
     permission_classes = [IsAuthenticated]
