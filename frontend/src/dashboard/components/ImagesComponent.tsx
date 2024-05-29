@@ -1,4 +1,4 @@
-import {FC} from "react";
+import {FC, Fragment, useState} from "react";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {format} from "date-fns";
@@ -6,6 +6,7 @@ import {Col} from "react-bootstrap";
 import axios from "axios";
 import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 import {Link} from "react-router-dom";
+import ModalDelete from "./ModalDelete.tsx";
 
 interface ImgData {
   id: number;
@@ -22,6 +23,10 @@ interface ImagesComponentProps {
 
 const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
   const {tokens} = useSessionContext()
+  const [show, setShow] = useState(false)
+
+  const handleClose = () => setShow(false)
+  const handleOpen = () => setShow(true)
   const formatDate = (value: string) => {
     return format(new Date(value), "yyyy-MM-dd HH:mm")
   }
@@ -39,6 +44,8 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
       if (axios.isAxiosError(error)) {
         console.log(error)
       }
+    }finally {
+      setShow(false)
     }
   }
 
@@ -61,27 +68,33 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
 
   return (
       data.map((img) => (
-          <Col key={img.id} xs={12} md={6} lg={4} xxl={3} className="mb-3">
-            <Card className="card-width">
-              <Card.Img variant="top" src={`http://localhost:8000/${img.image}`} className="img-size"/>
-              <Card.Body>
-                <Card.Title>{img.title}</Card.Title>
-                <Card.Text>
-                  No annotation found
-                </Card.Text>
-                <Button variant="primary" onClick={() => {
-                  imgDelete(img.id).then()
-                }}>
-                  Delete
-                </Button>
-                <Link to={`${img.id}`}>
-                  <Button variant="primary" className="mx-2">Info</Button>
-                </Link>
+          <Fragment key={img.id}>
+            <Col xs={12} md={6} lg={4} xxl={3} className="mb-3">
+              <Card className="card-width">
+                <Card.Img variant="top" src={`http://localhost:8000/${img.image}`} className="img-size"/>
+                <Card.Body>
+                  <Card.Title>{img.title}</Card.Title>
+                  <Card.Text>
+                    No annotation found
+                  </Card.Text>
+                  <Button variant="primary" onClick={handleOpen}>
+                    Delete
+                  </Button>
+                  <Link to={`${img.id}`}>
+                    <Button variant="primary" className="mx-2">Info</Button>
+                  </Link>
 
-              </Card.Body>
-              <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
-            </Card>
-          </Col>
+                </Card.Body>
+                <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
+              </Card>
+            </Col>
+            <ModalDelete
+                show={show}
+                pictureTitle={img.title}
+                handleClose={handleClose}
+                handleDelete={() => imgDelete(img.id)}
+            />
+          </Fragment>
       ))
   )
 }

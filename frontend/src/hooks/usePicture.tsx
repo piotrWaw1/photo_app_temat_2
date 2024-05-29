@@ -2,7 +2,6 @@ import {useParams} from "react-router-dom";
 import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {useSessionContext} from "./useSessionContext.tsx";
-import {string} from "yup";
 import {useToaster} from "./useToaster.tsx";
 
 interface PicData {
