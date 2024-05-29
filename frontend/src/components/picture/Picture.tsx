@@ -1,10 +1,33 @@
 import usePicture from "../../hooks/usePicture.tsx";
 import {Col, Form, Image, Row} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import axios from "axios";
+import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 
 export default function Picture() {
 
   const {picData, anData, picLoading, anLoading, annotateImage} = usePicture()
+  const {tokens} = useSessionContext()
+
+  const saveAnnotations = async (id: number, anData: string[]) => {
+    try {
+    
+      const response = await axios.post(`/annotations/photo/${id}/annotate`,
+       { anData },
+       {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + String(tokens?.access),
+        }
+      })
+      console.log(response.data)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
   return (
       <Row>
         <Col>
@@ -27,6 +50,7 @@ export default function Picture() {
           </div>
           <h3>Manual annotations</h3>
         </Col>
+        <button onClick={() => {saveAnnotations(picData?.id, anData)}}>Save annotation</button>
       </Row>
   )
 }

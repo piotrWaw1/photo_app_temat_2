@@ -2,14 +2,29 @@ from rest_framework import serializers, exceptions
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import (
     Photo,
+    Annotation
 )
 
+
+class AnnotationSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = Annotation
+        fields = ['id', 'photo', 'user', 'text', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']
+
+    def create(self, validated_data):
+        # `photo` and `user` will be provided during the save process
+        return Annotation.objects.create(**validated_data)
+    
 class PhotoSerializer(serializers.ModelSerializer):
 
     owner = serializers.ReadOnlyField(source='owner.username')
     owner_id = serializers.ReadOnlyField(source='owner.id')
     image_url = serializers.ImageField(required=False)
+    annotations = AnnotationSerializer(many=True, read_only=True)
 
     class Meta:
         model = Photo
-        fields = ['id', 'owner', 'owner_id', 'image', 'title', 'image_url', 'uploaded_on']
+        fields = ['id', 'owner', 'owner_id', 'image', 'title', 'image_url', 'uploaded_on', 'annotations']

@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Photo
-from .serializer import PhotoSerializer
+from .serializer import PhotoSerializer, AnnotationSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -127,3 +127,28 @@ class PhotoAnnotateAPIView(APIView):
                     detected_objects.add(object_name)
 
         return Response(detected_objects, status=status.HTTP_200_OK)
+
+class AnnotationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AnnotationSerializer
+
+    def post(self, request, *args, **kwargs):
+        photo_id = kwargs.get("id")
+        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
+        annotations = request.data.get('anData', [])
+        print(annotations)
+        print(photo)
+
+        if not isinstance(annotations, list):
+            return Response({"error": "Annotations should be a list"}, status=status.HTTP_400_BAD_REQUEST)
+
+        created_annotations = []
+        for annotation_text in annotations:
+            serializer = self.serializer_class(data={'text': annotation_text, 'photo': photo.id})  # Pass the photo object here
+            if serializer.is_valid():
+                annotation = serializer.save(user=request.user)  # No need to pass photo again as it's already set in the serializer
+                created_annotations.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(created_annotations, status=status.HTTP_201_CREATED)
