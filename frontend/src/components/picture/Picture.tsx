@@ -2,10 +2,36 @@ import usePicture from "../../hooks/usePicture.tsx";
 import {Col, Form, Image, Row} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Spinner from 'react-bootstrap/Spinner';
+import axios from "axios";
+import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 
 export default function Picture() {
 
   const {picData, anData, anLoading, annotateImage} = usePicture()
+
+
+
+  const {tokens} = useSessionContext()
+
+  const saveAnnotations = async (id: number, anData: string[]) => {
+    try {
+    
+      const response = await axios.post(`/annotations/photo/${id}/annotate`,
+       { anData },
+       {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + String(tokens?.access),
+        }
+      })
+      console.log(response.data)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
   return (
       <Row>
         <Col>
@@ -49,6 +75,7 @@ export default function Picture() {
           />
         </Form.Group>
         </Col>
+        <button onClick={() => {saveAnnotations(picData?.id, anData)}}>Save annotation</button>
       </Row>
   )
 }
