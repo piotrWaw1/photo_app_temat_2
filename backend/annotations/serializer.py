@@ -15,7 +15,12 @@ class AnnotationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'user', 'created_at']
 
     def create(self, validated_data):
-        # `photo` and `user` will be provided during the save process
+        text = validated_data.get('text')
+        photo = validated_data.get('photo')
+        existing_annotation = Annotation.objects.filter(text=text, photo=photo).first()
+        if existing_annotation:
+           
+            raise serializers.ValidationError(f"An annotation '{text}' already exists for this photo.")
         return Annotation.objects.create(**validated_data)
     
 class PhotoSerializer(serializers.ModelSerializer):

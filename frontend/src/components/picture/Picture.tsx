@@ -32,6 +32,24 @@ export default function Picture() {
     }
   }
 
+  const deleteAnnotation = async (photoId: number, annotationId: number) => {
+    try {
+    
+      const response = await axios.delete(`/annotations/photo/delete_annotation/${photoId}/${annotationId}`,
+       {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + String(tokens?.access),
+        }
+      })
+      console.log('Annotation deleted successfully');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
   return (
       <Row>
         <Col>
@@ -76,6 +94,7 @@ export default function Picture() {
         </Form.Group>
         </Col>
         <button onClick={() => {saveAnnotations(picData?.id, anData)}}>Save annotation</button>
+        <button onClick={() => {deleteAnnotation(7, 6)}}>Delete annotation</button>
       </Row>
   )
 }

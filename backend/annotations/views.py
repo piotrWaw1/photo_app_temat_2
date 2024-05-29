@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Photo
+from .models import Photo, Annotation
 from .serializer import PhotoSerializer, AnnotationSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
@@ -152,3 +152,13 @@ class AnnotationAPIView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(created_annotations, status=status.HTTP_201_CREATED)
+    
+    def delete(self, request, *args, **kwargs):
+        photo_id = kwargs.get("photo_id")
+        annotation_id = kwargs.get("annotation_id")
+
+        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
+        annotation = get_object_or_404(Annotation, id=annotation_id, photo=photo)
+
+        annotation.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
