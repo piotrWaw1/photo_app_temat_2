@@ -69,6 +69,7 @@ class PhotoCreateAPIView(APIView):
         else:
             return Response({"error": "Image file not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 class PhotoGetAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PhotoSerializer
@@ -79,6 +80,7 @@ class PhotoGetAPIView(APIView):
         serializer = PhotoSerializer(photo)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class PhotoAnnotateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PhotoSerializer
@@ -87,7 +89,7 @@ class PhotoAnnotateAPIView(APIView):
         photos = Photo.objects.filter(owner=request.user)
         serializer = PhotoSerializer(photos, many=True)
 
-        #load model
+        # load model
         '''Model list
         yolov8n [n s m k x]
         yolov8n-seg [n s m k x]
@@ -95,35 +97,33 @@ class PhotoAnnotateAPIView(APIView):
         '''
         model = YOLO('yolov8n.pt')
 
-        #getting photo
+        # getting photo
         photo_id = kwargs.get('pk')
         photo = Photo.objects.get(pk=photo_id)
         image_url = photo.image.url
-        img_path = 'http://localhost:8000/'+image_url
+        img_path = 'http://localhost:8000/' + image_url
         results = model(img_path)
 
-        #annotate image
-        #detected_objects = [] for lists
+        # annotate image
+        # detected_objects = [] for lists
         detected_objects = set()
 
-        #return from model list
+        # return from model list
         for result in results:
-            #making bounding boxes and saving to result.jpg
-            #boxes = result.boxes  # Boxes object for bounding box outputs
-            #masks = result.masks  # Masks object for segmentation masks outputs
-            #keypoints = result.keypoints  # Keypoints object for pose outputs
-            #probs = result.probs  # Probs object for classification outputs
-            #obb = result.obb  # Oriented boxes object for OBB outputs
-            #result.show()  # display to screen
-            #result.save(filename='result.jpg')  # save to disk
+            # making bounding boxes and saving to result.jpg
+            # boxes = result.boxes  # Boxes object for bounding box outputs
+            # masks = result.masks  # Masks object for segmentation masks outputs
+            # keypoints = result.keypoints  # Keypoints object for pose outputs
+            # probs = result.probs  # Probs object for classification outputs
+            # obb = result.obb  # Oriented boxes object for OBB outputs
+            # result.show()  # display to screen
+            # result.save(filename='result.jpg')  # save to disk
             if result.boxes:
                 for box in result.boxes:
                     class_id = int(box.cls)
                     object_name = model.names[class_id]
 
-                    #detected_objects.append(object_name) for lists
+                    # detected_objects.append(object_name) for lists
                     detected_objects.add(object_name)
 
         return Response(detected_objects, status=status.HTTP_200_OK)
-
-

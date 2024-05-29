@@ -5,6 +5,7 @@ import {format} from "date-fns";
 import {Col} from "react-bootstrap";
 import axios from "axios";
 import {useSessionContext} from "../../hooks/useSessionContext.tsx";
+import {Link} from "react-router-dom";
 
 interface ImgData {
   id: number;
@@ -41,21 +42,21 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
     }
   }
 
-  const annotateImage = async (id: number) => {
-    try {
-      const response = await axios.get(`/annotations/photos_edit/${id}`, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: 'Bearer ' + String(tokens?.access),
-        }
-      })
-      console.log(response.data)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
+  // const annotateImage = async (id: number) => {
+  //   try {
+  //     const response = await axios.get(`/annotations/photos_edit/${id}`, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //         Authorization: 'Bearer ' + String(tokens?.access),
+  //       }
+  //     })
+  //     console.log(response.data)
+  //   } catch (error) {
+  //     if (axios.isAxiosError(error)) {
+  //       console.log(error)
+  //     }
+  //   }
+  // }
 
 
   return (
@@ -68,8 +69,14 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
                 <Card.Text>
                   No annotation found
                 </Card.Text>
-                <Button variant="primary" onClick={() => {void imgDelete(img.id)}}>Delete</Button>
-                <Button variant="primary" className="mx-2" onClick={() => {void annotateImage(img.id)}}>Annotate</Button>
+                <Button variant="primary" onClick={() => {
+                  imgDelete(img.id).then()
+                }}>
+                  Delete
+                </Button>
+                <Link to={`${img.id}`}>
+                  <Button variant="primary" className="mx-2">Info</Button>
+                </Link>
 
               </Card.Body>
               <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
