@@ -1,5 +1,5 @@
 import usePicture from "../../hooks/usePicture.tsx";
-import {Col, Form, Image, Row} from "react-bootstrap";
+import {Col, Form, Image, Row, Table} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Spinner from 'react-bootstrap/Spinner';
 import axios from "axios";
@@ -8,43 +8,28 @@ import * as yup from "yup";
 import {ErrorMessage, Formik, FormikValues} from "formik";
 import {useParams} from "react-router-dom";
 import {useToaster} from "../../hooks/useToaster.tsx";
+import {format} from "date-fns";
 
 
 export default function Picture() {
 
-  const {picData, anData, anLoading, annotateImage} = usePicture()
+  const {picData, anData, anLoading, annotateImage, getData, picLoading} = usePicture()
   const {tokens} = useSessionContext()
   const {show} = useToaster()
   const {id} = useParams()
 
-  // const saveAnnotations = async (anData: string[]) => {
-  //   try {
-  //     const response = await axios.post(`/annotations/photo/${id}/annotate`,
-  //         {anData},
-  //         {
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //             Authorization: 'Bearer ' + String(tokens?.access),
-  //           }
-  //         })
-  //     console.log(response.data)
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error)) {
-  //       console.log(error)
-  //     }
-  //   }
-  // }
-
-  const deleteAnnotation = async (photoId: number, annotationId: number) => {
+  const deleteAnnotation = async (annotationId: number) => {
     try {
 
-      const response = await axios.delete(`/annotations/photo/delete_annotation/${photoId}/${annotationId}`,
+      await axios.delete(`/annotations/photo/delete_annotation/${id}/${annotationId}`,
           {
             headers: {
               'Content-Type': 'application/json',
               Authorization: 'Bearer ' + String(tokens?.access),
             }
           })
+      show({title: "Success", description: "Annotation deleted successfully", bg: "success"})
+      getData().then()
       console.log('Annotation deleted successfully');
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -65,12 +50,13 @@ export default function Picture() {
             }
           })
       show({title: "Success", description: "Annotation added successfully", bg: "success"})
+      getData().then()
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        show({title: "Error", description: error.response?.data[0], bg: "danger"})
         console.log(error)
       }
     }
-
   }
 
 
@@ -123,16 +109,41 @@ export default function Picture() {
             </Formik>
           </div>
           <h3 className="mt-4">Available annotations</h3>
-          <div>
-            <div>
-              Annotation 1
-              <Button className="ms-3 mb-2">Delete</Button>
-            </div>
-            <div>
-              Annotation 2
-              <Button className="ms-3">Delete</Button>
-            </div>
-          </div>
+          <Table>
+            <thead>
+            <tr>
+              <th>Annotation</th>
+              <th>Creator</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {picData?.annotations.map(an => (
+                <tr key={an.id}>
+                  <td>{an.text}</td>
+                  <td>{an.user}</td>
+                  <td>{format(new Date(an.created_at), "yyyy-MM-dd")}</td>
+                  <td>
+                    <Button onClick={() => deleteAnnotation(an.id)}>Delete</Button>
+                  </td>
+                </tr>
+            ))}
+            {picData?.annotations.length === 0 && !picLoading &&
+                <tr>
+                    <td colSpan={4} className="text-center">No annotation found</td>
+                </tr>
+            }
+            {picLoading &&
+                <tr>
+                    <td colSpan={4} className="text-center">
+                        Loading
+                        <Spinner size="sm" animation="border" className="me-2"/>
+                    </td>
+                </tr>
+            }
+            </tbody>
+          </Table>
           <Form.Group controlId="validationCustom01">
             <Form.Label>Add annotation</Form.Label>
             <Form.Control
@@ -142,14 +153,6 @@ export default function Picture() {
             />
           </Form.Group>
         </Col>
-        <button onClick={() => {
-          saveAnnotations(picData?.id, anData)
-        }}>Save annotation
-        </button>
-        <button onClick={() => {
-          deleteAnnotation(7, 6)
-        }}>Delete annotation
-        </button>
       </Row>
   )
 }

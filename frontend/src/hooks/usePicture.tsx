@@ -4,6 +4,13 @@ import axios from "axios";
 import {useSessionContext} from "./useSessionContext.tsx";
 import {useToaster} from "./useToaster.tsx";
 
+interface Annotations {
+  created_at: string;
+  id: number;
+  text: string;
+  user: string;
+}
+
 interface PicData {
   id: number;
   image: string;
@@ -12,7 +19,7 @@ interface PicData {
   owner_id: number;
   title: string;
   uploaded_on: string; // or Date if you prefer to work with Date objects
-
+  annotations: Annotations[]
 }
 
 export default function usePicture() {
@@ -33,6 +40,7 @@ export default function usePicture() {
           Authorization: 'Bearer ' + String(tokens?.access),
         },
       })
+      console.log(data)
       setPicData(data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -41,6 +49,7 @@ export default function usePicture() {
     } finally {
       setPicLoading(false)
     }
+
   }, [id, tokens?.access])
 
   useEffect(() => {
@@ -72,5 +81,5 @@ export default function usePicture() {
     }
   }
 
-  return {annotateImage, picData, picLoading, anData, anLoading}
+  return {annotateImage, getData, picData, picLoading, anData, anLoading}
 }
