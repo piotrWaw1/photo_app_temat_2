@@ -40,7 +40,7 @@ export default function usePicture() {
           Authorization: 'Bearer ' + String(tokens?.access),
         },
       })
-      console.log(data)
+      // console.log(data)
       setPicData(data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -66,7 +66,7 @@ export default function usePicture() {
         }
       })
       setAnData(data)
-      console.log(data)
+      // console.log(data)
       if (data.length) {
         show({title: "Success", description: "Annotation found!", bg: "success"})
       } else {

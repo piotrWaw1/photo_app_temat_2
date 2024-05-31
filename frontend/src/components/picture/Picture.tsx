@@ -40,9 +40,15 @@ export default function Picture() {
 
   const sendAnotations = async (formData: FormikValues) => {
     try {
-      const toSend = formData.anotations
+      let toSend = []
+      if (formData.anotations) {
+        toSend = [...formData.anotations]
+      } else {
+        toSend.push(formData.anotation)
+      }
+      console.log(toSend)
       await axios.post(`/annotations/photo/${id}/annotate`,
-          {anData: toSend},
+          {anData: [...toSend]},
           {
             headers: {
               'Content-Type': 'application/json',
@@ -62,6 +68,10 @@ export default function Picture() {
 
   const schema = yup.object({
     anotations: yup.array().min(1, "Select at least one anotation")
+  })
+
+  const schema2 = yup.object({
+    anotation: yup.string().min(1, "Annotation is too short")
   })
 
   return (
@@ -144,14 +154,37 @@ export default function Picture() {
             }
             </tbody>
           </Table>
-          <Form.Group controlId="validationCustom01">
-            <Form.Label>Add annotation</Form.Label>
-            <Form.Control
-                required
-                type="text"
-                placeholder="Anotation"
-            />
-          </Form.Group>
+          <Formik
+              validationSchema={schema2}
+              onSubmit={sendAnotations}
+              initialValues={{
+                anotation: ''
+              }}
+          >
+            {({handleSubmit, handleChange, values, touched, errors}) => (
+                <Form
+                    noValidate
+                    onSubmit={handleSubmit}
+                >
+                  <Form.Group controlId="validationCustom01">
+                    <Form.Label>Add annotation</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="anotation"
+                        value={values.anotation}
+                        onChange={handleChange}
+                        isInvalid={touched.anotation && !!errors.anotation}
+                        placeholder="Anotation"
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.anotation}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                  <Button className="mt-2" type="submit">Add</Button>
+                </Form>
+            )}
+          </Formik>
+
         </Col>
       </Row>
   )
