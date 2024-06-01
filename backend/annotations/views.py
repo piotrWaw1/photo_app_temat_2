@@ -8,6 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 import os
 from ultralytics import YOLO
+from django.db.models import Q
 
 
 class PhotoCreateAPIView(APIView):
@@ -47,7 +48,13 @@ class PhotoCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
-        photos = Photo.objects.filter(owner=request.user)
+        user = request.user
+
+        # Get photos where the user is the owner or is a member of a group that the photo belongs to
+        photos = Photo.objects.filter(
+            Q(owner=user) | Q(groups__members=user)
+        ).distinct()
+
         serializer = PhotoSerializer(photos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -76,7 +83,8 @@ class PhotoGetAPIView(APIView):
 
     def get(self, request, *args, **kwargs):
         photo_id = kwargs.get('id')
-        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
+        user = request.user
+        photo = get_object_or_404(Photo.objects.filter(Q(owner=user) | Q(groups__members=user), id=photo_id))
         serializer = PhotoSerializer(photo)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -136,9 +144,14 @@ class AnnotationAPIView(APIView):
     def post(self, request, *args, **kwargs):
         photo_id = kwargs.get("id")
         photo = get_object_or_404(Photo, id=photo_id)
+        user = request.user
 
-        # if not photo.groups.filter(members=request.user).exists():
-        #     raise PermissionDenied("You do not have permission to annotate this photo")
+        if photo.groups.exists():  # If the photo is associated with any groups
+            if not (photo.owner == user or photo.groups.filter(members=user).exists()):
+                raise PermissionDenied("You do not have permission to annotate this photo")
+        else:  # If the photo is not associated with any groups
+            if photo.owner != user:
+                raise PermissionDenied("You do not have permission to annotate this photo")
 
         annotations = request.data.get('anData', [])
         if not isinstance(annotations, list):
@@ -159,9 +172,15 @@ class AnnotationAPIView(APIView):
         photo_id = kwargs.get("photo_id")
         annotation_id = kwargs.get("annotation_id")
 
-        annotation = get_object_or_404(Annotation, id=annotation_id, photo__id=photo_id, user=request.user)
-        annotation.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        annotation = get_object_or_404(Annotation, id=annotation_id, photo__id=photo_id)
+        photo = annotation.photo
+    
+        # Check if the current user is the owner of the photo or the owner of the annotation
+        if request.user == photo.owner or request.user == annotation.user:
+            annotation.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
 # class AnnotationAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
