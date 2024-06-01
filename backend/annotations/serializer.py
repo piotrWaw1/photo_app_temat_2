@@ -2,9 +2,15 @@ from rest_framework import serializers, exceptions
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import (
     Photo,
-    Annotation
+    Annotation,
+    Group
 )
 
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'owner', 'members']
 
 class AnnotationSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')

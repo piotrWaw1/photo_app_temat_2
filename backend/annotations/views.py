@@ -1,8 +1,8 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Photo, Annotation
-from .serializer import PhotoSerializer, AnnotationSerializer
+from .models import Photo, Annotation, Group, get_user_model
+from .serializer import PhotoSerializer, AnnotationSerializer, GroupSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -128,37 +128,111 @@ class PhotoAnnotateAPIView(APIView):
 
         return Response(detected_objects, status=status.HTTP_200_OK)
 
+
 class AnnotationAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AnnotationSerializer
 
     def post(self, request, *args, **kwargs):
         photo_id = kwargs.get("id")
-        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
-        annotations = request.data.get('anData', [])
-        print(annotations)
-        print(photo)
+        photo = get_object_or_404(Photo, id=photo_id)
 
+        # if not photo.groups.filter(members=request.user).exists():
+        #     raise PermissionDenied("You do not have permission to annotate this photo")
+
+        annotations = request.data.get('anData', [])
         if not isinstance(annotations, list):
             return Response({"error": "Annotations should be a list"}, status=status.HTTP_400_BAD_REQUEST)
 
         created_annotations = []
         for annotation_text in annotations:
-            serializer = self.serializer_class(data={'text': annotation_text, 'photo': photo.id})  # Pass the photo object here
+            serializer = self.serializer_class(data={'text': annotation_text, 'photo': photo.id})
             if serializer.is_valid():
-                annotation = serializer.save(user=request.user)  # No need to pass photo again as it's already set in the serializer
+                annotation = serializer.save(user=request.user)
                 created_annotations.append(serializer.data)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(created_annotations, status=status.HTTP_201_CREATED)
-    
+
     def delete(self, request, *args, **kwargs):
         photo_id = kwargs.get("photo_id")
         annotation_id = kwargs.get("annotation_id")
 
-        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
-        annotation = get_object_or_404(Annotation, id=annotation_id, photo=photo)
-
+        annotation = get_object_or_404(Annotation, id=annotation_id, photo__id=photo_id, user=request.user)
         annotation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# class AnnotationAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = AnnotationSerializer
+
+#     def post(self, request, *args, **kwargs):
+#         photo_id = kwargs.get("id")
+#         photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
+#         annotations = request.data.get('anData', [])
+#         print(annotations)
+#         print(photo)
+
+#         if not isinstance(annotations, list):
+#             return Response({"error": "Annotations should be a list"}, status=status.HTTP_400_BAD_REQUEST)
+
+#         created_annotations = []
+#         for annotation_text in annotations:
+#             serializer = self.serializer_class(data={'text': annotation_text, 'photo': photo.id})  # Pass the photo object here
+#             if serializer.is_valid():
+#                 annotation = serializer.save(user=request.user)  # No need to pass photo again as it's already set in the serializer
+#                 created_annotations.append(serializer.data)
+#             else:
+#                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#         return Response(created_annotations, status=status.HTTP_201_CREATED)
+    
+#     def delete(self, request, *args, **kwargs):
+#         photo_id = kwargs.get("photo_id")
+#         annotation_id = kwargs.get("annotation_id")
+
+#         photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
+#         annotation = get_object_or_404(Annotation, id=annotation_id, photo=photo)
+
+#         annotation.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class GroupCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            group = serializer.save(owner=request.user)
+            group.members.add(request.user)  # Add the owner as a member
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class GroupAddMemberAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        group_id = kwargs.get('group_id')
+        user_id = request.data.get('user_id')
+
+        group = get_object_or_404(Group, id=group_id, owner=request.user)
+        user = get_object_or_404(get_user_model(), id=user_id)
+
+        group.members.add(user)
+        return Response({"message": "User added to group successfully"}, status=status.HTTP_200_OK)
+
+class PhotoShareAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        photo_id = kwargs.get('photo_id')
+        group_id = request.data.get('group_id')
+
+        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
+        group = get_object_or_404(Group, id=group_id, members=request.user)
+
+        photo.groups.add(group)
+        return Response({"message": "Photo shared with group successfully"}, status=status.HTTP_200_OK)
+    
