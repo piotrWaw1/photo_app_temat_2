@@ -65,8 +65,8 @@ class PhotoCreateAPIView(APIView):
         except Photo.DoesNotExist:
             return Response({"error": "Photo not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if photo.owner != request.user:
-            raise PermissionDenied("You do not have permission to delete this photo.")
+        # if photo.owner != request.user:
+        #     raise PermissionDenied("You do not have permission to delete this photo.")
         image_path = photo.image.path
 
         if os.path.exists(image_path):

@@ -34,6 +34,10 @@ class Annotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        if self.photo.owner == self.user:
+            super().save(*args, **kwargs)
+            return
+
         if self.photo.groups.exists() and not self.photo.groups.filter(members=self.user).exists():
             raise PermissionDenied("User does not have permission to annotate this photo")
         super().save(*args, **kwargs)
