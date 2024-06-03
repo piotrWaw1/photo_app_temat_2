@@ -54,12 +54,12 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
                         <span key={index}>{annotation.text}, </span>
                     ))}
                   </Card.Text>
-                  <Button variant="primary" onClick={() => handleOpen(img)}>
-                    Delete
-                  </Button>
                   <Link to={`${img.id}`}>
                     <Button variant="primary" className="mx-2">Info</Button>
                   </Link>
+                  <Button variant="danger" onClick={() => handleOpen(img)}>
+                    Delete
+                  </Button>
                 </Card.Body>
                 <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
               </Card>

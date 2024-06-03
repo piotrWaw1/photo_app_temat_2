@@ -54,7 +54,6 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
         const response = await axios.post("/auth/token/refresh", {
           refresh: tokens?.refresh,
         })
-        console.log(response)
         if (response.status === 200) {
           sessionStorage.setItem('authTokens', JSON.stringify(response.data))
           setUserId(getUserFromToken())

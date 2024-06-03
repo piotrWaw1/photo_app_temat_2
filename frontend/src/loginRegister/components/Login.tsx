@@ -54,7 +54,7 @@ export default function Login() {
                   {errors.password}
                 </Form.Control.Feedback>
               </Form.Group>
-              <Button type="submit" className='mt-3'>Login</Button>
+              <Button  className='mt-3'>Login</Button>
             </Form>
         )}
       </Formik>

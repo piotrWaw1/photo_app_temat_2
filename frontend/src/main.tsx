@@ -16,6 +16,7 @@ import Login from "./loginRegister/components/Login.tsx";
 import Register from "./loginRegister/components/Register.tsx";
 import AddImage from "./components/addImage/AddImage.tsx";
 import Picture from "./components/picture/Picture.tsx";
+import Groups from "./components/groups/Groups.tsx";
 
 
 axios.defaults.baseURL = "http://localhost:8000"
@@ -40,6 +41,14 @@ const router = createBrowserRouter([
         path: '/addimage',
         element: <AddImage/>
       },
+      {
+        path: '/groups',
+        element: <Groups/>
+      },
+      {
+        path: '*',
+        element: <Error/>
+      }
     ],
   },
   {
@@ -56,13 +65,14 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register/>
+      },
+      {
+        path: '*',
+        element: <Error/>
       }
     ]
   },
-  {
-    path: '*',
-    element: <Error/>
-  }
+
 ])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
