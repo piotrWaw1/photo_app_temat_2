@@ -19,12 +19,13 @@ export default function useAddImg() {
           Authorization: 'Bearer ' + String(tokens?.access),
         }
       })
-      show({title:"Success",description:`Img ${response.statusText}`,bg:"success"})
+      show({title: "Success", description: `Img ${response.statusText}`, bg: "success"})
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        show({title: "Error", description: `Img ${error.response?.data.image[0]}`, bg: "danger"})
         console.log(error)
       }
-    }finally {
+    } finally {
       setLoading(false)
     }
   }

@@ -1,14 +1,17 @@
-import {FC, Fragment, useState} from "react";
+import {FC, useState} from "react";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {format} from "date-fns";
 import {Col} from "react-bootstrap";
-import axios from "axios";
-import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 import {Link} from "react-router-dom";
 import ModalDelete from "./ModalDelete.tsx";
 
+interface Annotation {
+  text: string
+}
+
 interface ImgData {
+  annotations: Annotation[];
   id: number;
   image: string;
   owner: string;
@@ -17,85 +20,60 @@ interface ImgData {
   uploaded_on: string;
 }
 
+
 interface ImagesComponentProps {
   data: ImgData[];
 }
 
-const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
-  const {tokens} = useSessionContext()
-  const [show, setShow] = useState(false)
 
+const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
+
+  const [show, setShow] = useState(false)
+  const [selectedImg, setSelectedImg] = useState<ImgData>()
   const handleClose = () => setShow(false)
-  const handleOpen = () => setShow(true)
+  const handleOpen = (img: ImgData) => {
+    setSelectedImg(img)
+    setShow(true)
+  }
   const formatDate = (value: string) => {
     return format(new Date(value), "yyyy-MM-dd HH:mm")
   }
 
-  const imgDelete = async (id: number) => {
-    try {
-      const response = await axios.delete(`/annotations/photos/${id}`, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: 'Bearer ' + String(tokens?.access),
-        }
-      })
-      console.log(response.data)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }finally {
-      setShow(false)
-    }
-  }
-
-  // const annotateImage = async (id: number) => {
-  //   try {
-  //     const response = await axios.get(`/annotations/photos_edit/${id}`, {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data',
-  //         Authorization: 'Bearer ' + String(tokens?.access),
-  //       }
-  //     })
-  //     console.log(response.data)
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error)) {
-  //       console.log(error)
-  //     }
-  //   }
-  // }
-
 
   return (
-      data.map((img) => (
-          <Fragment key={img.id}>
-            <Col xs={12} md={6} lg={4} xxl={3} className="mb-3">
+      <>
+        {data.map((img) => (
+            <Col xs={12} md={6} lg={4} xxl={3} className="mb-3" key={img.id}>
               <Card className="card-width">
                 <Card.Img variant="top" src={`http://localhost:8000/${img.image}`} className="img-size"/>
                 <Card.Body>
                   <Card.Title>{img.title}</Card.Title>
                   <Card.Text>
-                    No annotation found
+                    {img.annotations.length === 0 && "No annotation found"}
+                    {img.annotations.slice(0, 3).map((annotation, index) => (
+                        <span key={index}>{annotation.text}, </span>
+                    ))}
                   </Card.Text>
-                  <Button variant="primary" onClick={handleOpen}>
+                  <Button variant="primary" onClick={() => handleOpen(img)}>
                     Delete
                   </Button>
                   <Link to={`${img.id}`}>
                     <Button variant="primary" className="mx-2">Info</Button>
                   </Link>
-
                 </Card.Body>
                 <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
               </Card>
             </Col>
+        ))}
+        {selectedImg &&
             <ModalDelete
                 show={show}
-                pictureTitle={img.title}
+                pictureTitle={selectedImg.title}
                 handleClose={handleClose}
-                handleDelete={() => imgDelete(img.id)}
+                id={selectedImg.id}
             />
-          </Fragment>
-      ))
+        }
+      </>
   )
 }
 

@@ -5,11 +5,10 @@ import {Container, Row} from "react-bootstrap";
 
 export default function Home() {
   const {getImg, imgData} = useImage()
-  console.log(imgData)
+  // console.log(imgData)
   useEffect(() => {
     void getImg()
   }, [getImg])
-
   return (
       <>
         <h2>Your Images</h2>

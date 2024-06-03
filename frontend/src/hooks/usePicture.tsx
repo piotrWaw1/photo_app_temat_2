@@ -26,6 +26,7 @@ export default function usePicture() {
   const {id} = useParams()
   const {tokens} = useSessionContext()
   const [picData, setPicData] = useState<PicData | null>(null)
+  const [picError, setPicError] = useState(false)
   const [anData, setAnData] = useState<string[]>([])
   const [anLoading, setAnLoading] = useState(false)
   const [picLoading, setPicLoading] = useState(false)
@@ -33,6 +34,7 @@ export default function usePicture() {
   const {show} = useToaster()
   const getData = useCallback(async () => {
     try {
+      setPicError(false)
       setPicLoading(true)
       const {data} = await axios.get(`annotations/photo/${id}`, {
         headers: {
@@ -40,10 +42,12 @@ export default function usePicture() {
           Authorization: 'Bearer ' + String(tokens?.access),
         },
       })
-      // console.log(data)
       setPicData(data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          setPicError(true)
+        }
         console.log(error)
       }
     } finally {
@@ -66,7 +70,6 @@ export default function usePicture() {
         }
       })
       setAnData(data)
-      // console.log(data)
       if (data.length) {
         show({title: "Success", description: "Annotation found!", bg: "success"})
       } else {
@@ -81,5 +84,5 @@ export default function usePicture() {
     }
   }
 
-  return {annotateImage, getData, picData, picLoading, anData, anLoading}
+  return {annotateImage, getData, picData, picLoading, anData, anLoading, picError}
 }
