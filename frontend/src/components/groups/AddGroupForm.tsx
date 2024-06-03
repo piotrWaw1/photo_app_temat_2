@@ -1,33 +1,59 @@
 import {Button, Form, Modal} from "react-bootstrap";
-import {FC} from "react";
+import {FC, useState} from "react";
 import * as yup from "yup";
-import {Formik} from "formik";
+import {Formik, FormikValues} from "formik";
+import axios from "axios";
+import {useSessionContext} from "../../hooks/useSessionContext.tsx";
+import {useToaster} from "../../hooks/useToaster.tsx";
 
 
 interface AddGroupFormProps {
-  show: boolean;
+  showModal: boolean;
   handleClose: () => void;
 }
 
 const AddGroupForm: FC<AddGroupFormProps> = (props) => {
-
-  const {show, handleClose} = props
+  const {showModal, handleClose} = props
+  const {tokens} = useSessionContext()
+  const {show} = useToaster()
 
   const schema = yup.object().shape({
-    groupName: yup.string().required('Group name is required')
+    name: yup.string().required('Group name is required')
   });
 
+  const [loading, setLoading] = useState(false)
+  const handleSend = async (data: FormikValues) => {
+    try {
+      setLoading(true)
+      const response = await axios.post('annotations/groups', {name: data.name}, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + String(tokens?.access),
+        }
+      })
+      console.log(response)
+      show({title: "Success", description: `Group created successfully!`, bg: "success"})
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        show({title: "Error", description: `Error`, bg: "danger"})
+        console.log(error)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-      <Modal show={show} onHide={handleClose} backdrop="static">
+      <Modal show={showModal} onHide={handleClose} backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Add Group</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Formik
               validationSchema={schema}
-              onSubmit={console.log}
+              onSubmit={handleSend}
               initialValues={{
-                groupName: ''
+                name: ''
               }}
           >
             {({handleSubmit, values, handleChange, errors, touched}) => (
@@ -39,22 +65,22 @@ const AddGroupForm: FC<AddGroupFormProps> = (props) => {
                     <Form.Label>Group name</Form.Label>
                     <Form.Control
                         type="text"
-                        name="groupName"
+                        name="name"
                         placeholder="SuperPhotoGroup"
                         autoFocus
-                        value={values.groupName}
+                        value={values.name}
                         onChange={handleChange}
-                        isInvalid={touched.groupName && !!errors.groupName}
+                        isInvalid={touched.name && !!errors.name}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errors.groupName}
+                      {errors.name}
                     </Form.Control.Feedback>
                   </Form.Group>
                   <div className="d-flex justify-content-end gap-2">
-                    <Button variant="secondary" onClick={handleClose}>
+                    <Button variant="secondary" onClick={handleClose} disabled={loading}>
                       Close
                     </Button>
-                    <Button type="submit">Save changes</Button>
+                    <Button type="submit" disabled={loading}>Save changes</Button>
                   </div>
                 </Form>
             )}

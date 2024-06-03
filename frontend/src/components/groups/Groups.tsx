@@ -35,7 +35,7 @@ export default function Groups() {
             </tbody>
           </Table>
         </Container>
-        <AddGroupForm show={show} handleClose={handleClose}/>
+        <AddGroupForm showModal={show} handleClose={handleClose}/>
       </>
   )
 }
