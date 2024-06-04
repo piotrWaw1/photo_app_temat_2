@@ -3,6 +3,7 @@ import {useState} from "react";
 import AddGroupForm from "./AddGroupForm.tsx";
 import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 import axios from "axios";
+import { set } from "date-fns";
 
 
 export default function Groups() {
@@ -10,6 +11,8 @@ export default function Groups() {
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleOpen = () => setShow(true)
+
+  const [groupData, setGroupData] = useState()
 
 
   const {tokens} = useSessionContext()
@@ -34,7 +37,7 @@ export default function Groups() {
   }
 
 
-  const getGroup = async () => {
+  const getGroups = async () => {
     try {
 
       const response = await axios.get(`/annotations/groups/list`,
@@ -44,6 +47,60 @@ export default function Groups() {
               Authorization: 'Bearer ' + String(tokens?.access),
             }
           })
+      
+      console.log(response);
+      setGroupData(response.data)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
+  const updateGroup = async (groupId: number, groupData) => {
+    try {
+      const response = await axios.patch(`/annotations/groups/${groupId}/edit`, groupData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tokens?.access}`,
+        },
+      });
+      
+      console.log(response);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
+  const addGroupMember = async (groupId: number, username) => {
+    try {
+      const response = await axios.post(`/annotations/groups/${groupId}/add_member`, username, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tokens?.access}`,
+        },
+      });
+      
+      console.log(response);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
+
+  const deleteGroupMember = async (groupId: number, username) => {
+    try {
+      const response = await axios.delete(`/annotations/groups/${groupId}/delete_member`, {
+            data: { username },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + String(tokens?.access),
+            },
+          });
       
       console.log(response);
     } catch (error) {
@@ -83,10 +140,16 @@ export default function Groups() {
         <AddGroupForm showModal={show} handleClose={handleClose}/>
 
 
-
-      <button onClick={() => deleteGroup(6)}>Delete</button>
-      <button onClick={() => getGroup()}>getGroups</button>
-
+      {/* delete works only for owner -- veri gut */}
+      <button onClick={() => deleteGroup(12)}>Delete</button>
+      {/* getGroups works for owner and member */}
+      <button onClick={() => getGroups()}>getGroups</button>
+      
+      <button onClick={() => deleteGroupMember(9, {'username':'qqqq'})}>deleteGroupMember</button>
+      {/* updateGroup works for owner and member */} 
+      <button onClick={() => updateGroup(9, {'name':"other name"})}>updateGroup</button>
+      <button onClick={() => addGroupMember(9, {'username': 'qqqq'})}>addGroupMember</button>
+      
       </>
   )
 }
