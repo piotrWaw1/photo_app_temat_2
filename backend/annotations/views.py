@@ -248,6 +248,15 @@ class GroupDeleteAPIView(APIView):
             
         return Response(status=status.HTTP_204_NO_CONTENT)
         
+class GroupListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+
+    def get(self, request, *args, **kwargs):
+        groups = Group.objects.filter(owner=request.user)
+        serializer = GroupSerializer(groups, many=True)  
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
     
 class GroupAddMemberAPIView(APIView):
     permission_classes = [IsAuthenticated]

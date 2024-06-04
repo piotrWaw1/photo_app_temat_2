@@ -3,10 +3,11 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('groups', GroupCreateAPIView.as_view(), name='group-create'),
-    path('groups/<int:group_id>/delete', GroupDeleteAPIView.as_view(), name='group-delete'),
-    path('groups/<int:group_id>/add-member/', GroupAddMemberAPIView.as_view(), name='group-add-member'),
-    
+    path('groups', GroupCreateAPIView.as_view(), name='group_create'),
+    path('groups/<int:group_id>/delete', GroupDeleteAPIView.as_view(), name='group_delete'),
+    path('groups/<int:group_id>/add-member/', GroupAddMemberAPIView.as_view(), name='group_add_member'),
+    path('groups/list', GroupListAPIView.as_view(), name='groups_get'),
+
 
     path('photos', PhotoCreateAPIView.as_view(), name='photo_create'),
     path('photos/<int:pk>', PhotoCreateAPIView.as_view(), name='photo_delete'),

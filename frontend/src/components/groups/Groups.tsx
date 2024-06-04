@@ -33,6 +33,26 @@ export default function Groups() {
     }
   }
 
+
+  const getGroup = async () => {
+    try {
+
+      const response = await axios.get(`/annotations/groups/list`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + String(tokens?.access),
+            }
+          })
+      
+      console.log(response);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
   return (
       <>
         <div className="d-flex justify-content-between">
@@ -65,6 +85,7 @@ export default function Groups() {
 
 
       <button onClick={() => deleteGroup(6)}>Delete</button>
+      <button onClick={() => getGroup()}>getGroups</button>
 
       </>
   )
