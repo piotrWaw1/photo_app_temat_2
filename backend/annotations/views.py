@@ -84,7 +84,7 @@ class PhotoGetAPIView(APIView):
     def get(self, request, *args, **kwargs):
         photo_id = kwargs.get('id')
         user = request.user
-        photo = get_object_or_404(Photo.objects.filter(Q(owner=user) | Q(groups__members=user), id=photo_id))
+        photo = get_object_or_404(Photo.objects.filter(Q(owner=user) | Q(groups__members=user), id=photo_id).distinct())
         serializer = PhotoSerializer(photo)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
