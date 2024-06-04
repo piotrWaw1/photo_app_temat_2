@@ -103,16 +103,18 @@ class PhotoAnnotateAPIView(APIView):
         yolov8n-seg [n s m k x]
         yolov8n-cls [n s m k x]
         '''
-        model = YOLO('yolov8n.pt')
+
+        model = YOLO('backend/media/models/yolov8n.pt')
 
         # getting photo
         photo_id = kwargs.get('pk')
         photo = Photo.objects.get(pk=photo_id)
         image_url = photo.image.url
-        img_path = 'http://localhost:8000/' + image_url
+        img_path = 'http://localhost:8000' + image_url
+
+        #annotate
         results = model(img_path)
 
-        # annotate image
         # detected_objects = [] for lists
         detected_objects = set()
 
@@ -133,6 +135,9 @@ class PhotoAnnotateAPIView(APIView):
 
                     # detected_objects.append(object_name) for lists
                     detected_objects.add(object_name)
+
+        # removing img from main folder
+        os.remove(str(photo.image)[7:])
 
         return Response(detected_objects, status=status.HTTP_200_OK)
 
