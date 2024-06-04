@@ -65,8 +65,8 @@ class PhotoCreateAPIView(APIView):
         except Photo.DoesNotExist:
             return Response({"error": "Photo not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # if photo.owner != request.user:
-        #     raise PermissionDenied("You do not have permission to delete this photo.")
+        if photo.owner != request.user:
+            raise PermissionDenied("You do not have permission to delete this photo.")
         image_path = photo.image.path
 
         if os.path.exists(image_path):
@@ -222,22 +222,38 @@ class GroupCreateAPIView(APIView):
     serializer_class = GroupSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        
+        mambers = [request.user.id]
+        serializer = self.serializer_class(data={'owner': request.user.id, 'members': mambers, 'name': request.data["name"]})
         if serializer.is_valid():
             group = serializer.save(owner=request.user)
-            group.members.add(request.user)  # Add the owner as a member
+            # group.members.add(request.user)  # Add the owner as a member
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GroupDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+
+    def delete(self, request, *args, **kwargs):
+        
+        group_id = kwargs.get("group_id")
+        group = get_object_or_404(Group, id=group_id, owner=request.user)
+        group.delete()
+            
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        
     
 class GroupAddMemberAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        
         group_id = kwargs.get('group_id')
         user_id = request.data.get('user_id')
 
         group = get_object_or_404(Group, id=group_id, owner=request.user)
-        user = get_object_or_404(get_user_model(), id=user_id)
+        user = get_object_or_404(get_user_model().objects.filter(username = request.user.username))
 
         group.members.add(user)
         return Response({"message": "User added to group successfully"}, status=status.HTTP_200_OK)

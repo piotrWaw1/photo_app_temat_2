@@ -1,12 +1,37 @@
 import {Button, Container, Table} from "react-bootstrap";
 import {useState} from "react";
 import AddGroupForm from "./AddGroupForm.tsx";
+import {useSessionContext} from "../../hooks/useSessionContext.tsx";
+import axios from "axios";
+
 
 export default function Groups() {
 
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleOpen = () => setShow(true)
+
+
+  const {tokens} = useSessionContext()
+
+  const deleteGroup = async (groupId: number) => {
+    try {
+
+      const response = await axios.delete(`/annotations/groups/${groupId}/delete`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + String(tokens?.access),
+            }
+          })
+      
+      console.log(response);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
 
   return (
       <>
@@ -36,6 +61,11 @@ export default function Groups() {
           </Table>
         </Container>
         <AddGroupForm showModal={show} handleClose={handleClose}/>
+
+
+
+      <button onClick={() => deleteGroup(6)}>Delete</button>
+
       </>
   )
 }

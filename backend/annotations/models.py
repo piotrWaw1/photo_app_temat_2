@@ -14,7 +14,7 @@ class Group(models.Model):
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='member_groups')
 
     def __str__(self):
-        return self.name
+        return f"id:{self.id}, name:{self.name}"
 
 class Photo(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owned_photos')
