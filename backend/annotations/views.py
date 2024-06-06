@@ -260,12 +260,12 @@ class GroupCreateAPIView(APIView):
     serializer_class = GroupSerializer
 
     def post(self, request, *args, **kwargs):
-
-        mambers = [request.user.id]
+        owner = request.user.username
+        members = [owner]
         serializer = self.serializer_class(
             data={
-                "owner": request.user.id,
-                "members": mambers,
+                "owner": owner,
+                "members": members,
                 "name": request.data["name"],
             }
         )
