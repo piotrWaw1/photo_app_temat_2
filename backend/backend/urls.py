@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('log_reg.urls')),
     path('annotations/', include('annotations.urls')),
+    path('p2p/', include('p2p.urls')),
 ]
 
 # For media upload

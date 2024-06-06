@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Conversation with {% for participant in other_participants %}{{ participant.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</h1>
+<div id="messages">
+    {% for message in conversation.messages.all %}
+        <p><strong>{{ message.sender.username }}:</strong> {{ message.content }} <em>{{ message.timestamp }}</em></p>
+    {% endfor %}
+</div>
+<form id="message-form">
+    <textarea id="message-content" placeholder="Type your message here..."></textarea>
+    <button type="button" onclick="sendMessage()">Send</button>
+</form>
+
+<script>
+    function sendMessage() {
+        const content = document.getElementById('message-content').value;
+        fetch("{% url 'send_message' conversation.id %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ content })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message_id) {
+                const messagesDiv = document.getElementById('messages');
+                const newMessage = document.createElement('p');
+                newMessage.innerHTML = `<strong>{{ request.user.username }}:</strong> ${content} <em>now</em>`;
+                messagesDiv.appendChild(newMessage);
+                document.getElementById('message-content').value = '';
+            } else {
+                alert('Failed to send message');
+            }
+        });
+    }
+</script>
+{% endblock %}
