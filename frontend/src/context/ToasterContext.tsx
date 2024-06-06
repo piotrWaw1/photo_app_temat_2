@@ -8,7 +8,7 @@ interface Toaster {
 interface MessageObject {
   title: string | undefined;
   description: string;
-  bg: string;
+  bg: "success" | "danger";
 }
 
 export const ToasterContext = createContext<Toaster>({

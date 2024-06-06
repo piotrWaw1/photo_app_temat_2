@@ -10,3 +10,6 @@ class User(AbstractUser):
     # I overrode this to use email field instead of username.
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+
+    def __str__(self):
+        return self.username

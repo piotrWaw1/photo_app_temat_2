@@ -3,17 +3,18 @@ import {FC, useState} from "react";
 import * as yup from "yup";
 import {Formik, FormikValues} from "formik";
 import axios from "axios";
-import {useSessionContext} from "../../hooks/useSessionContext.tsx";
-import {useToaster} from "../../hooks/useToaster.tsx";
+import {useSessionContext} from "../../../hooks/useSessionContext.tsx";
+import {useToaster} from "../../../hooks/useToaster.tsx";
 
 
 interface AddGroupFormProps {
   showModal: boolean;
   handleClose: () => void;
+  update: ()=> void;
 }
 
 const AddGroupForm: FC<AddGroupFormProps> = (props) => {
-  const {showModal, handleClose} = props
+  const {showModal, handleClose, update} = props
   const {tokens} = useSessionContext()
   const {show} = useToaster()
 
@@ -33,6 +34,8 @@ const AddGroupForm: FC<AddGroupFormProps> = (props) => {
       })
       console.log(response)
       show({title: "Success", description: `Group created successfully!`, bg: "success"})
+      handleClose()
+      update()
     } catch (error) {
       if (axios.isAxiosError(error)) {
         show({title: "Error", description: `Error`, bg: "danger"})

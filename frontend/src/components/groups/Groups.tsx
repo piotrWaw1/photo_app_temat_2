@@ -1,10 +1,21 @@
 import {Button, Container, Table} from "react-bootstrap";
-import {useState} from "react";
-import AddGroupForm from "./AddGroupForm.tsx";
+import {useCallback, useEffect, useState} from "react";
+import AddGroupForm from "./util/AddGroupForm.tsx";
 import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 import axios from "axios";
-import { set } from "date-fns";
+import GroupDeleteModal from "./util/GroupDeleteModal.tsx";
+import {Link} from "react-router-dom";
 
+interface Members {
+  username: string;
+}
+
+interface GroupData {
+  id: number;
+  name: string;
+  owner: string;
+  members: Members[];
+}
 
 export default function Groups() {
 
@@ -12,34 +23,13 @@ export default function Groups() {
   const handleClose = () => setShow(false)
   const handleOpen = () => setShow(true)
 
-  const [groupData, setGroupData] = useState()
+  const [groupData, setGroupData] = useState<GroupData[]>()
 
 
   const {tokens} = useSessionContext()
 
-  const deleteGroup = async (groupId: number) => {
+  const getGroups = useCallback(async () => {
     try {
-
-      const response = await axios.delete(`/annotations/groups/${groupId}/delete`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: 'Bearer ' + String(tokens?.access),
-            }
-          })
-      
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
-
-  const getGroups = async () => {
-    try {
-
       const response = await axios.get(`/annotations/groups/list`,
           {
             headers: {
@@ -47,15 +37,18 @@ export default function Groups() {
               Authorization: 'Bearer ' + String(tokens?.access),
             }
           })
-      
-      console.log(response);
       setGroupData(response.data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log(error)
       }
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    getGroups().then()
+  }, [getGroups, tokens?.access]);
+
 
   const updateGroup = async (groupId: number, groupData) => {
     try {
@@ -65,7 +58,7 @@ export default function Groups() {
           Authorization: `Bearer ${tokens?.access}`,
         },
       });
-      
+
       console.log(response);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -82,7 +75,7 @@ export default function Groups() {
           Authorization: `Bearer ${tokens?.access}`,
         },
       });
-      
+
       console.log(response);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -91,17 +84,24 @@ export default function Groups() {
     }
   }
 
+  const [selectedGroup, setSelectedGroup] = useState<Pick<GroupData, "id" | "name">>({name: '', id: 0})
+  const [showDelete, setShowDelete] = useState(false)
+  const handleOpenDelete = (data: GroupData) => {
+    setShowDelete(true)
+    setSelectedGroup({id: data.id, name: data.name})
+  }
+  const handleCloseDelete = () => setShowDelete(false)
 
   const deleteGroupMember = async (groupId: number, username) => {
     try {
       const response = await axios.delete(`/annotations/groups/${groupId}/delete_member`, {
-            data: { username },
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: 'Bearer ' + String(tokens?.access),
-            },
-          });
-      
+        data: {username},
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + String(tokens?.access),
+        },
+      });
+
       console.log(response);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -126,30 +126,38 @@ export default function Groups() {
             </tr>
             </thead>
             <tbody>
-            <tr>
-              <td>Grupa 1</td>
-              <td>Owner</td>
-              <td>
-                <Button className="me-2">Edit</Button>
-                <Button variant="danger">Delete</Button>
-              </td>
-            </tr>
+            {groupData?.map(group => (
+                <tr key={group.id}>
+                  <td>{group.name}</td>
+                  <td>{group.owner}</td>
+                  <td>
+                    <Link to={`${group.id}`}>
+                      <Button className="me-2">Edit</Button>
+                    </Link>
+                    <Button variant="danger" onClick={() => handleOpenDelete(group)}>Delete</Button>
+                  </td>
+                </tr>
+            ))}
             </tbody>
           </Table>
         </Container>
-        <AddGroupForm showModal={show} handleClose={handleClose}/>
+        <AddGroupForm showModal={show} handleClose={handleClose} update={getGroups}/>
+        <GroupDeleteModal
+            showModal={showDelete}
+            groupTitle={selectedGroup.name}
+            groupId={selectedGroup.id}
+            handleClose={handleCloseDelete}
+            update={getGroups}
+        />
 
+        {/* delete works only for owner -- veri gut */}
+        {/*<button onClick={() => deleteGroup(12)}>Delete</button>*/}
 
-      {/* delete works only for owner -- veri gut */}
-      <button onClick={() => deleteGroup(12)}>Delete</button>
-      {/* getGroups works for owner and member */}
-      <button onClick={() => getGroups()}>getGroups</button>
-      
-      <button onClick={() => deleteGroupMember(9, {'username':'qqqq'})}>deleteGroupMember</button>
-      {/* updateGroup works for owner and member */} 
-      <button onClick={() => updateGroup(9, {'name':"other name"})}>updateGroup</button>
-      <button onClick={() => addGroupMember(9, {'username': 'qqqq'})}>addGroupMember</button>
-      
+        <button onClick={() => deleteGroupMember(9, {'username': 'qqqq'})}>deleteGroupMember</button>
+        {/* updateGroup works for owner and member */}
+        <button onClick={() => updateGroup(9, {'name': "other name"})}>updateGroup</button>
+        <button onClick={() => addGroupMember(9, {'username': 'qqqq'})}>addGroupMember</button>
+
       </>
   )
 }
