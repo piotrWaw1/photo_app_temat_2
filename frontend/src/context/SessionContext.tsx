@@ -51,11 +51,11 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
   useEffect(() => {
     const updateToken = async () => {
       try {
-        const {data, status} = await axios.post("/auth/token/refresh", {
+        const response = await axios.post("/auth/token/refresh", {
           refresh: tokens?.refresh,
         })
-        if (status === 200) {
-          sessionStorage.setItem('authTokens', JSON.stringify(data))
+        if (response.status === 200) {
+          sessionStorage.setItem('authTokens', JSON.stringify(response.data))
           setUserId(getUserFromToken())
           setTokens(getToken())
         }
@@ -65,8 +65,8 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
         }
       }
     }
-
-    const REFRESH_INTERVAL = 1000 * 60 * 10; // 10 minutes
+    const REFRESH_INTERVAL = 1000 * 60 * 5; // 10 minutes
+    // const REFRESH_INTERVAL = 500
     const interval = setInterval(() => {
       if (tokens) {
         void updateToken();

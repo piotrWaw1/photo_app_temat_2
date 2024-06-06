@@ -15,6 +15,9 @@ import AuthContainer from "./loginRegister/AuthContainer.tsx";
 import Login from "./loginRegister/components/Login.tsx";
 import Register from "./loginRegister/components/Register.tsx";
 import AddImage from "./components/addImage/AddImage.tsx";
+import Picture from "./components/picture/Picture.tsx";
+import Groups from "./components/groups/Groups.tsx";
+import Group from "./components/groups/Group.tsx";
 
 
 axios.defaults.baseURL = "http://localhost:8000"
@@ -32,9 +35,25 @@ const router = createBrowserRouter([
         element: <Home/>
       },
       {
+        path: '/:id',
+        element: <Picture/>
+      },
+      {
         path: '/addimage',
         element: <AddImage/>
       },
+      {
+        path: '/groups',
+        element: <Groups/>
+      },
+      {
+        path: 'groups/:id',
+        element: <Group/>
+      },
+      {
+        path: '*',
+        element: <Error/>
+      }
     ],
   },
   {
@@ -51,13 +70,14 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register/>
+      },
+      {
+        path: '*',
+        element: <Error/>
       }
     ]
   },
-  {
-    path: '*',
-    element: <Error/>
-  }
+
 ])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

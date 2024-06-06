@@ -19,11 +19,11 @@ export default function HeaderLog(){
               <LinkContainer to="/addimage">
                 <Nav.Link>Add Image</Nav.Link>
               </LinkContainer>
+              <LinkContainer to="/groups">
+                <Nav.Link>Groups</Nav.Link>
+              </LinkContainer>
               <LinkContainer to="/images">
                 <Nav.Link>LIST_ALL_IMAGES</Nav.Link>
-              </LinkContainer>
-              <LinkContainer to="/edit">
-                <Nav.Link>Something 2</Nav.Link>
               </LinkContainer>
             </Nav>
               <Nav.Link onClick={removeToken}>Log out</Nav.Link>

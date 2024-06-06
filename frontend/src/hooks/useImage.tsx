@@ -2,7 +2,12 @@ import {useCallback, useState} from "react";
 import axios from "axios";
 import {useSessionContext} from "./useSessionContext.tsx";
 
+interface Annotation {
+  text: string
+}
+
 interface ImgGet {
+  annotations: Annotation[];
   id: number;
   image: string;
   owner: string;
