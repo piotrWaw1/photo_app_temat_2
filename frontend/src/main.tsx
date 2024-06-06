@@ -17,6 +17,7 @@ import Register from "./loginRegister/components/Register.tsx";
 import AddImage from "./components/addImage/AddImage.tsx";
 import Picture from "./components/picture/Picture.tsx";
 import Groups from "./components/groups/Groups.tsx";
+import P2p from "./components/P2p/P2p.tsx"
 
 
 axios.defaults.baseURL = "http://localhost:8000"
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: '/groups',
         element: <Groups/>
+      },
+      {
+        path: '/p2p',
+        element: <P2p/>
       },
       {
         path: '*',

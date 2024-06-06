@@ -25,6 +25,9 @@ export default function HeaderLog(){
               <LinkContainer to="/images">
                 <Nav.Link>LIST_ALL_IMAGES</Nav.Link>
               </LinkContainer>
+              <LinkContainer to="/P2p">
+                <Nav.Link>P2p</Nav.Link>
+              </LinkContainer>
             </Nav>
               <Nav.Link onClick={removeToken}>Log out</Nav.Link>
           </Navbar.Collapse>
