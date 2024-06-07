@@ -1,74 +1,13 @@
-import {Button, Col, Form, Row, Table} from "react-bootstrap";
-import * as yup from "yup";
-import {Formik} from "formik";
-import {useState} from "react";
+import ManageGroups from "./groupComponents/ManageGroups.tsx";
+import ManageImages from "./groupComponents/ManageImages.tsx";
 
 export default function Group() {
-  const [loading, setLoading] = useState(false)
-  const schema = yup.object().shape({
-    name: yup.string().required('Group name is required')
-  });
 
   return (
       <>
-        <h1>Title</h1>
-        <Row>
-          <Col md={6} xs={12}>
-            <Table striped bordered hover>
-              <thead>
-              <tr>
-                <th>Username</th>
-                <th></th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr className="text-center">
-                <td>testuser</td>
-                <td>
-                  <Button variant="danger">Delete</Button>
-                </td>
-              </tr>
-              </tbody>
-            </Table>
-          </Col>
-          <Col md={6} xs={12}>
-            <Formik
-              validationSchema={schema}
-              onSubmit={console.log}
-              initialValues={{
-                name: ''
-              }}
-          >
-            {({handleSubmit, values, handleChange, errors, touched}) => (
-                <Form
-                    noValidate
-                    onSubmit={handleSubmit}
-                >
-                  <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                    <Form.Label>Add user</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="name"
-                        placeholder="username"
-                        autoFocus
-                        value={values.name}
-                        onChange={handleChange}
-                        isInvalid={touched.name && !!errors.name}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.name}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                  <div className="d-flex justify-content-end gap-2">
-                    <Button type="submit" disabled={loading}>Add</Button>
-                  </div>
-                </Form>
-            )}
-
-          </Formik>
-          </Col>
-        </Row>
-
+        <h1 className="border-bottom pb-3 text-center">Group title</h1>
+        <ManageGroups/>
+        <ManageImages/>
       </>
   )
 }
