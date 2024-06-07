@@ -40,7 +40,7 @@ class PhotoCreateAPIView(APIView):
             if not self.is_valid_image_extension(image.name):
                 return Response(
                     {"error": "Invalid image file format"},
-                    status=status.HTTP_400_BAD_REQUEST,
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 )
 
             if not self.is_valid_image_size(image):
@@ -56,7 +56,7 @@ class PhotoCreateAPIView(APIView):
                 title=request.data["title"],
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUES)
 
     def get(self, request, *args, **kwargs):
         user = request.user

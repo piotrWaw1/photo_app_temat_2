@@ -153,10 +153,10 @@ export default function Groups() {
         {/* delete works only for owner -- veri gut */}
         {/*<button onClick={() => deleteGroup(12)}>Delete</button>*/}
 
-        <button onClick={() => deleteGroupMember(9, {'username': 'qqqq'})}>deleteGroupMember</button>
+        <button onClick={() => deleteGroupMember(1, {'username': 'qqqq'})}>deleteGroupMember</button>
         {/* updateGroup works for owner and member */}
-        <button onClick={() => updateGroup(9, {'name': "other name"})}>updateGroup</button>
-        <button onClick={() => addGroupMember(9, {'username': 'qqqq'})}>addGroupMember</button>
+        <button onClick={() => updateGroup(1, {'name': "other name"})}>updateGroup</button>
+        <button onClick={() => addGroupMember(1, {'username': 'qqqq'})}>addGroupMember</button>
 
       </>
   )

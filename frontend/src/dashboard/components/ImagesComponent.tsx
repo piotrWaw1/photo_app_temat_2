@@ -2,7 +2,7 @@ import {FC, useState} from "react";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {format} from "date-fns";
-import {Col} from "react-bootstrap";
+import {Badge, Col} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import ModalDelete from "./ModalDelete.tsx";
 
@@ -51,7 +51,7 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
                   <Card.Text>
                     {img.annotations.length === 0 && "No annotation found"}
                     {img.annotations.slice(0, 3).map((annotation, index) => (
-                        <span key={index}>{annotation.text}, </span>
+                        <Badge key={index} bg="primary" className="me-2">{annotation.text}</Badge>
                     ))}
                   </Card.Text>
                   <Link to={`${img.id}`}>
