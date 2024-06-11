@@ -260,18 +260,27 @@ class GroupCreateAPIView(APIView):
     serializer_class = GroupSerializer
 
     def post(self, request, *args, **kwargs):
-        owner = request.user.username
-        members = [owner]
+        owner = request.user
+        name = request.data.get("name")
+
+        # Check if a group with the same name and owner already exists
+        if Group.objects.filter(owner=owner, name=name).exists():
+            return Response(
+                {"message": "A group with this name already exists for the current user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        members = [owner.username]
         serializer = self.serializer_class(
             data={
-                "owner": owner,
+                "owner": owner.username,
                 "members": members,
-                "name": request.data["name"],
+                "name": name,
             }
         )
         if serializer.is_valid():
-            group = serializer.save(owner=request.user)
-            group.members.add(request.user)  # Add the owner as a member
+            group = serializer.save(owner=owner)
+            group.members.add(owner)  # Add the owner as a member
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -305,6 +314,47 @@ class GroupListAPIView(APIView):
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class GroupDetailByIdAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        group_id = kwargs.get('group_id')
+
+        if not group_id:
+            return Response({"error": "Group ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            group = Group.objects.get(
+                Q(id=group_id) & (Q(owner=user) | Q(members=user))
+            )
+        except Group.DoesNotExist:
+            return Response({"error": "Group not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = GroupSerializer(group)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+# class GroupListByNameAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = GroupSerializer
+
+#     def get(self, request, *args, **kwargs):
+#         user = request.user
+#         group_name = kwargs.get('group_name')
+#         owner_username = kwargs.get('owner_username')
+
+#         if not group_name or not owner_username:
+#             return Response({"error": "Group name and owner username are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             group = Group.objects.get(
+#                 Q(owner__username=owner_username) & Q(name=group_name) & (Q(owner=user) | Q(members=user))
+#             )
+#         except Group.DoesNotExist:
+#             return Response({"error": "Group not found."}, status=status.HTTP_404_NOT_FOUND)
+
+#         serializer = GroupSerializer(group)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class GroupAddMemberAPIView(APIView):
     permission_classes = [IsAuthenticated]

@@ -4,6 +4,8 @@ from .views import *
 
 urlpatterns = [
     path("groups", GroupCreateAPIView.as_view(), name="group_create"),
+    path("groups/list", GroupListAPIView.as_view(), name="group_list"),
+    path("groups/<int:group_id>", GroupDetailByIdAPIView.as_view(), name="group_get_single"),
     path(
         "groups/<int:group_id>/delete",
         GroupDeleteAPIView.as_view(),

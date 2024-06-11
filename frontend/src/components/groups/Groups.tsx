@@ -110,6 +110,26 @@ export default function Groups() {
     }
   }
 
+
+  const getGroupByName = async (groupId) => {
+    try {
+      const response = await axios.get(`/annotations/groups/${groupId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + String(tokens?.access),
+          }
+        })
+
+      console.log(response);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
+
   return (
       <>
         <div className="d-flex justify-content-between">
@@ -157,6 +177,8 @@ export default function Groups() {
         {/* updateGroup works for owner and member */}
         <button onClick={() => updateGroup(1, {'name': "other name"})}>updateGroup</button>
         <button onClick={() => addGroupMember(1, {'username': 'qqqq'})}>addGroupMember</button>
+        <button onClick={() => getGroupByName(14)}>getGroupByID</button>
+        
 
       </>
   )
