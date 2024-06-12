@@ -1,12 +1,12 @@
-import {Button, Col, Form} from "react-bootstrap";
+import {Col, Form} from "react-bootstrap";
 import {Formik} from "formik";
 import * as yup from "yup";
 import useRegister from "../../hooks/useRegister.tsx";
-
+import SubmitButton from "../../utils/components/SubmitButton.tsx";
 export default function Register() {
 
-  const {register} = useRegister()
-  
+  const {register, loading} = useRegister()
+
   const schema = yup.object().shape({
     username: yup.string().min(4).required('User name is required'),
     email: yup.string().email('This is not an email').required('E-mail is required'),
@@ -86,7 +86,7 @@ export default function Register() {
                   {errors.repeat_password}
                 </Form.Control.Feedback>
               </Form.Group>
-              <Button type="submit" className='mt-3'>Sing Up</Button>
+              <SubmitButton isLoading={loading} text="Sing Up"/>
             </Form>
         )}
       </Formik>

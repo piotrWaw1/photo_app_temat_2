@@ -10,6 +10,8 @@ import {useParams} from "react-router-dom";
 import {useToaster} from "../../hooks/useToaster.tsx";
 import {format} from "date-fns";
 import Error from "../Error.tsx";
+import {useState} from "react";
+import SubmitButton from "../../utils/components/SubmitButton.tsx";
 
 export default function Picture() {
 
@@ -38,8 +40,10 @@ export default function Picture() {
     }
   }
 
+  const [anotatiomsLaoding, setAnotationsLoading] = useState(false)
   const sendAnotations = async (formData: FormikValues) => {
     try {
+      setAnotationsLoading(true)
       let toSend = []
       if (formData.anotations) {
         toSend = [...formData.anotations]
@@ -62,6 +66,8 @@ export default function Picture() {
         show({title: "Error", description: error.response?.data[0], bg: "danger"})
         console.log(error)
       }
+    } finally {
+      setAnotationsLoading(false)
     }
   }
 
@@ -111,7 +117,8 @@ export default function Picture() {
                                 ))}
                                 <ErrorMessage name="anotations" component="div"/>
                                 {anData.length !== 0 &&
-                                    <Button type="submit">Save</Button>
+                                    <SubmitButton isLoading={anotatiomsLaoding} text="Save"/>
+                                    // <Button type="submit">Save</Button>
                                 }
                                 {anData.length === 0 && "No anotation"}
                               </Form>
