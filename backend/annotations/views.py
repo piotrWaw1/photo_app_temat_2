@@ -444,14 +444,102 @@ class PhotoShareAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        photo_id = kwargs.get("photo_id")
-        group_id = request.data.get("group_id")
+        user = request.user
+        photo_id = request.data.get("photo_id")
+        group_id = kwargs.get("group_id")
 
-        photo = get_object_or_404(Photo, id=photo_id, owner=request.user)
-        group = get_object_or_404(Group, id=group_id, members=request.user)
-
+    
+        photo = get_object_or_404(Photo, id=photo_id, owner=user)
+        group = get_object_or_404(Group, id=group_id)
+        if not (group.owner == user or group.members.filter(id=user.id).exists()):
+            return Response(
+                {"error": "You are not authorized to share this photo with the group"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if group in photo.groups.all():
+            return Response(
+                {"error": "This photo is already shared with the group"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         photo.groups.add(group)
         return Response(
             {"message": "Photo shared with group successfully"},
-            status=status.HTTP_200_OK,
+            status=status.HTTP_200_OK
+        )
+
+class PhotoShareAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        photo_id = request.data.get("photo_id")
+        group_id = kwargs.get("group_id")
+
+    
+        photo = get_object_or_404(Photo, id=photo_id, owner=user)
+        group = get_object_or_404(Group, id=group_id)
+        if not (group.owner == user or group.members.filter(id=user.id).exists()):
+            return Response(
+                {"error": "You are not authorized to share this photo with the group"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if group in photo.groups.all():
+            return Response(
+                {"error": "This photo is already shared with the group"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        photo.groups.add(group)
+        return Response(
+            {"message": "Photo shared with group successfully"},
+            status=status.HTTP_200_OK
+        )
+    
+class PhotoListGroupAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        group_id = kwargs.get("group_id")
+        
+        group = get_object_or_404(Group, id=group_id)
+        
+        if not (group.owner == user or group.members.filter(id=user.id).exists()):
+            return Response(
+                {"error": "You are not authorized to view the photos of this group"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        photos = group.group_photos.all()
+        serializer = PhotoSerializer(photos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class PhotoDeleteFromGroupAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        group_id = kwargs.get("group_id")
+        photo_id = kwargs.get("pk")
+
+        group = get_object_or_404(Group, id=group_id)
+        photo = get_object_or_404(Photo, id=photo_id)
+
+        if not (user == group.owner or user == photo.owner):
+            return Response(
+                {"error": "You are not authorized to remove this photo from the group"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if group not in photo.groups.all():
+            return Response(
+                {"error": "This photo is not part of the specified group"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        photo.groups.remove(group)
+        return Response(
+            {"message": "Photo removed from group successfully"},
+            status=status.HTTP_200_OK
         )

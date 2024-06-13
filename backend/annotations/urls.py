@@ -25,6 +25,21 @@ urlpatterns = [
         name="group_delete_member",
     ),
     path("groups/list", GroupListAPIView.as_view(), name="groups_get"),
+
+
+    path(
+        "groups/<int:group_id>/add_photo", PhotoShareAPIView.as_view(), name="group_add_photo"
+    ),
+
+    path(
+        "groups/<int:group_id>/get_all_photos", PhotoListGroupAPIView.as_view(), name="group_get_all_photos"
+    ),
+    path(
+        "groups/<int:group_id>/remove_photo/<int:pk>", PhotoDeleteFromGroupAPIView.as_view(), name="group_get_all_photos"
+    ),
+
+
+
     path("photos", PhotoCreateAPIView.as_view(), name="photo_create"),
     path("photos/<int:pk>", PhotoCreateAPIView.as_view(), name="photo_delete"),
     path("photos_edit/<int:pk>", PhotoAnnotateAPIView.as_view(), name="photo_patch"),
