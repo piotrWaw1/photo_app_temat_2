@@ -210,9 +210,21 @@ class AnnotationAPIView(APIView):
 
         annotation = get_object_or_404(Annotation, id=annotation_id, photo__id=photo_id)
         photo = annotation.photo
+        user = request.user
 
-        # Check if the current user is the owner of the photo or the owner of the annotation
-        if request.user == photo.owner or request.user == annotation.user:
+        # Check if the current user is the owner of the photo
+        if user == photo.owner:
+            annotation.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        # Check if the current user is the owner of the photo or a current member of a group where the photo is shared
+        if photo.groups.exists():  # If the photo is associated with any groups
+            has_access = photo.owner == user or photo.groups.filter(members=user).exists()
+        else:  # If the photo is not associated with any groups
+            has_access = photo.owner == user
+
+        # Only allow deletion if the user has access to the photo and is the owner of the annotation
+        if has_access and user == annotation.user:
             annotation.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:

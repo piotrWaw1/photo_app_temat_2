@@ -195,6 +195,8 @@ export default function Picture() {
                 </Col>
             </Row>
         }
+
+    
       </>
   )
 }

@@ -187,6 +187,25 @@ export default function Groups() {
     }
   }
 
+
+  const deleteAnnotation = async (annotationId: number, id) => {
+    try {
+      const response = await axios.delete(`/annotations/photo/delete_annotation/${id}/${annotationId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + String(tokens?.access),
+            }
+          })
+      
+      console.log(response);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
   return (
       <>
         <div className="d-flex justify-content-between">
@@ -237,7 +256,8 @@ export default function Groups() {
         <button onClick={() => getGroupByName(14)}>getGroupByID</button>
         <button onClick={() => addPhotoToGroup(17, {'photo_id': 1})}>addPhotoToGroup</button>
         <button onClick={() => getAllGroupPhotos(17)}>getAllGroupPhotos</button>
-        <button onClick={() => deletePhotoFromGroup(17,1)}>deletePhotoFromGroup</button>
+        <button onClick={() => deletePhotoFromGroup(17,5)}>deletePhotoFromGroup</button>
+        <button onClick={() => deleteAnnotation(41,5)}>deleteAnnotation</button>
         
 
       </>
