@@ -37,6 +37,7 @@ export default function Groups() {
               Authorization: 'Bearer ' + String(tokens?.access),
             }
           })
+      console.log(response)
       setGroupData(response.data)
     } catch (error) {
       if (axios.isAxiosError(error)) {

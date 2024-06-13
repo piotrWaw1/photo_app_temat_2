@@ -1,11 +1,12 @@
 import * as yup from "yup";
 import {Formik} from "formik";
-import {Button, Col, Form} from "react-bootstrap";
+import {Col, Form} from "react-bootstrap";
 import useLogin from "../../hooks/useLogin.tsx";
+import SubmitButton from "../../utils/components/SubmitButton.tsx";
 
 export default function Login() {
 
-  const {setSession} = useLogin()
+  const {setSession, loading} = useLogin()
   const schema = yup.object().shape({
     email: yup.string().email().required('E-mail is required'),
     password: yup.string().required('Password is required'),
@@ -54,7 +55,7 @@ export default function Login() {
                   {errors.password}
                 </Form.Control.Feedback>
               </Form.Group>
-              <Button type="submit" className='mt-3'>Login</Button>
+              <SubmitButton isLoading={loading} text="Login"/>
             </Form>
         )}
       </Formik>
