@@ -1,13 +1,47 @@
 import {Button, Col, Form, Row, Table} from "react-bootstrap";
-import {Formik} from "formik";
-import {useState} from "react";
+import {Formik, FormikValues} from "formik";
 import * as yup from "yup";
+import {FC} from "react";
+import {useSessionContext} from "../../../hooks/useSessionContext.tsx";
+import axios from "axios";
+import {useParams} from "react-router-dom";
 
-export default function ManageGroups() {
-  const [loading, setLoading] = useState(false)
+interface Member {
+  username: string;
+}
+
+interface ManageGroupsProps {
+  data: Member[];
+  loading: boolean;
+  update: () => void;
+}
+
+const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
+  const {userName, tokens} = useSessionContext()
+  const {id} = useParams()
   const schema = yup.object().shape({
     name: yup.string().required('Group name is required')
   });
+
+
+  const addMember = async (data: FormikValues) => {
+    try {
+      await axios.post(`/annotations/groups/${id}/add_member`, {username: data.name},
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + String(tokens?.access),
+            }
+          }
+      )
+      update()
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
+
 
   return (
       <>
@@ -18,23 +52,37 @@ export default function ManageGroups() {
               <thead>
               <tr>
                 <th>Username</th>
-                <th></th>
+                <th>Action</th>
               </tr>
               </thead>
               <tbody>
-              <tr className="text-center">
-                <td>testuser</td>
-                <td>
-                  <Button variant="danger">Delete</Button>
-                </td>
-              </tr>
+              {data.map((member, index) => {
+                if (member.username === userName && data.length === 1) {
+                  return (
+                      <tr key={`group${index}`} className="text-center">
+                        <td colSpan={2}>No members</td>
+                      </tr>
+                  )
+                }
+                if (member.username === userName) {
+                  return
+                }
+                return (
+                    <tr key={`group${index}`} className="text-center">
+                      <td>{member.username}</td>
+                      <td>
+                        <Button variant="danger">Delete</Button>
+                      </td>
+                    </tr>
+                )
+              })}
               </tbody>
             </Table>
           </Col>
           <Col md={6} xs={12}>
             <Formik
                 validationSchema={schema}
-                onSubmit={console.log}
+                onSubmit={addMember}
                 initialValues={{
                   name: ''
                 }}
@@ -71,3 +119,5 @@ export default function ManageGroups() {
       </>
   )
 }
+
+export default ManageGroups

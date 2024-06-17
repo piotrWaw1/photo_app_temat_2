@@ -1,3 +1,4 @@
+from django.core.exceptions import MultipleObjectsReturned
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -216,7 +217,7 @@ class AnnotationAPIView(APIView):
         if user == photo.owner:
             annotation.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
         # Check if the current user is the owner of the photo or a current member of a group where the photo is shared
         if photo.groups.exists():  # If the photo is associated with any groups
             has_access = photo.owner == user or photo.groups.filter(members=user).exists()
@@ -338,13 +339,13 @@ class GroupDetailByIdAPIView(APIView):
             return Response({"error": "Group ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            group = Group.objects.get(
+            group = Group.objects.filter(
                 Q(id=group_id) & (Q(owner=user) | Q(members=user))
             )
         except Group.DoesNotExist:
             return Response({"error": "Group not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = GroupSerializer(group)
+        serializer = GroupSerializer(group.first())
         return Response(serializer.data, status=status.HTTP_200_OK)
 # class GroupListByNameAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
@@ -460,7 +461,7 @@ class PhotoShareAPIView(APIView):
         photo_id = request.data.get("photo_id")
         group_id = kwargs.get("group_id")
 
-    
+
         photo = get_object_or_404(Photo, id=photo_id, owner=user)
         group = get_object_or_404(Group, id=group_id)
         if not (group.owner == user or group.members.filter(id=user.id).exists()):
@@ -468,7 +469,7 @@ class PhotoShareAPIView(APIView):
                 {"error": "You are not authorized to share this photo with the group"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         if group in photo.groups.all():
             return Response(
                 {"error": "This photo is already shared with the group"},
@@ -488,7 +489,7 @@ class PhotoShareAPIView(APIView):
         photo_id = request.data.get("photo_id")
         group_id = kwargs.get("group_id")
 
-    
+
         photo = get_object_or_404(Photo, id=photo_id, owner=user)
         group = get_object_or_404(Group, id=group_id)
         if not (group.owner == user or group.members.filter(id=user.id).exists()):
@@ -496,7 +497,7 @@ class PhotoShareAPIView(APIView):
                 {"error": "You are not authorized to share this photo with the group"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         if group in photo.groups.all():
             return Response(
                 {"error": "This photo is already shared with the group"},
@@ -507,16 +508,16 @@ class PhotoShareAPIView(APIView):
             {"message": "Photo shared with group successfully"},
             status=status.HTTP_200_OK
         )
-    
+
 class PhotoListGroupAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
         group_id = kwargs.get("group_id")
-        
+
         group = get_object_or_404(Group, id=group_id)
-        
+
         if not (group.owner == user or group.members.filter(id=user.id).exists()):
             return Response(
                 {"error": "You are not authorized to view the photos of this group"},
@@ -526,7 +527,7 @@ class PhotoListGroupAPIView(APIView):
         photos = group.group_photos.all()
         serializer = PhotoSerializer(photos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 class PhotoDeleteFromGroupAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

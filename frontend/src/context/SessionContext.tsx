@@ -13,24 +13,25 @@ interface TokenDecode {
   iat: number;
   jti: string;
   user_id: number;
+  username:string;
 }
 
 interface SessionContextData {
-  userID: number | null;
+  userName: string | null;
   tokens: TokenResponse | null;
   saveToken: (token: TokenResponse) => void;
   removeToken: () => void;
 }
 
 export const SessionContext = createContext<SessionContextData>({
-  userID: null,
+  userName: null,
   tokens: null,
   saveToken: () => undefined,
   removeToken: () => undefined,
 })
 
 export const SessoinProvider = ({children}: { children: ReactNode }) => {
-  const [userID, setUserId] = useState<null | number>(() => getUserFromToken())
+  const [userName, setUserName] = useState<null | string>(() => getUserFromToken())
   const [tokens, setTokens] = useState<TokenResponse | null>(() => getToken())
 
   const saveToken = (token: TokenResponse) => { // use when login
@@ -38,13 +39,13 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
     setTokens(token)
 
     const tokenDecode: TokenDecode = jwtDecode(token.access)
-    setUserId(tokenDecode.user_id)
+    setUserName(tokenDecode.username)
   }
 
   const removeToken = () => { // use when logout
     sessionStorage.removeItem('authTokens')
     setTokens(null)
-    setUserId(null)
+    setUserName(null)
   }
 
 
@@ -56,7 +57,7 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
         })
         if (response.status === 200) {
           sessionStorage.setItem('authTokens', JSON.stringify(response.data))
-          setUserId(getUserFromToken())
+          setUserName(getUserFromToken())
           setTokens(getToken())
         }
       } catch (error) {
@@ -76,7 +77,7 @@ export const SessoinProvider = ({children}: { children: ReactNode }) => {
   }, [tokens]);
 
   const contextData: SessionContextData = {
-    userID,
+    userName,
     tokens,
     saveToken,
     removeToken
@@ -94,11 +95,11 @@ function getToken(): TokenResponse | null {
   return tokens ? JSON.parse(tokens) : null
 }
 
-function getUserFromToken(): number | null {
+function getUserFromToken(): string | null {
   const token = sessionStorage.getItem('authTokens')
   if (token) {
     const decodeAccess: TokenDecode = jwtDecode(JSON.parse(token).access)
-    return decodeAccess.user_id
+    return decodeAccess.username
   }
   return null
 }

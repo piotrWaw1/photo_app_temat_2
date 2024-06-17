@@ -7,9 +7,9 @@ interface PublicRouteProps{
 }
 
 const PublicRoute: FC<PublicRouteProps> = ({children}) => {
-  const {userID} = useSessionContext()
+  const {userName} = useSessionContext()
 
-  return userID ? <Navigate to={"/"}/> : children
+  return userName ? <Navigate to={"/"}/> : children
 }
 
 export default PublicRoute

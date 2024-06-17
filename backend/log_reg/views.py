@@ -1,11 +1,9 @@
-from django.shortcuts import render
-from rest_framework import generics, status
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, MyTokenObtainPairSerializer
 
 
 class RegisterView(APIView):
@@ -16,15 +14,18 @@ class RegisterView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class LoginView(APIView):
-    def post(self, request):
-        email = request.data['email']
-        password = request.data['password']
-        user = User.objects.filter(email=email).first()
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
-        if not user:
-            raise AuthenticationFailed('User does not exist')
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password')
-
-        return Response({"message": "success"}, status=status.HTTP_200_OK)
+# class LoginView(APIView):
+#     def post(self, request):
+#         email = request.data['email']
+#         password = request.data['password']
+#         user = User.objects.filter(email=email).first()
+#
+#         if not user:
+#             raise AuthenticationFailed('User does not exist')
+#         if not user.check_password(password):
+#             raise AuthenticationFailed('Incorrect password')
+#
+#         return Response({"message": "success"}, status=status.HTTP_200_OK)
