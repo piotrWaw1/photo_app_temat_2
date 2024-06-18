@@ -50,7 +50,11 @@ export default function Group() {
   return (
       <>
         <h1 className="border-bottom pb-3 text-center">{groupData?.name}</h1>
-        <ManageGroups data={groupData?.members || []} loading={loading} update={groupMembers}/>
+        <ManageGroups
+            data={groupData?.members || []}
+            loading={loading}
+            owner={groupData?.owner || ''}
+            update={groupMembers}/>
         <ManageImages/>
       </>
   )

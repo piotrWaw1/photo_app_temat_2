@@ -253,7 +253,7 @@ export default function Groups() {
         {/* updateGroup works for owner and member */}
         <button onClick={() => updateGroup(1, {'name': "other name"})}>updateGroup</button>
         {/*<button onClick={() => addGroupMember(2, {'username': 'qqqq'})}>addGroupMember</button>*/}
-        <button onClick={() => getGroupByName(14)}>getGroupByID</button>
+        {/*<button onClick={() => getGroupByName(14)}>getGroupByID</button>*/}
         <button onClick={() => addPhotoToGroup(17, {'photo_id': 1})}>addPhotoToGroup</button>
         <button onClick={() => getAllGroupPhotos(17)}>getAllGroupPhotos</button>
         <button onClick={() => deletePhotoFromGroup(17,5)}>deletePhotoFromGroup</button>

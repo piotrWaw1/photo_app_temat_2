@@ -15,9 +15,10 @@ interface ManageGroupsProps {
   data: Member[];
   loading: boolean;
   update: () => void;
+  owner: string;
 }
 
-const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
+const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update, owner}) => {
   const {userName, tokens} = useSessionContext()
   const {id} = useParams()
   const {show} = useToaster()
@@ -92,8 +93,33 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
                       </tr>
                   )
                 }
-                if (member.username === userName) {
+                if (member.username === userName && userName === owner) {
                   return
+                }
+                if(member.username === userName){
+                  return (
+                      <tr key={`group${index}`} className="text-center">
+                        <td>{member.username}</td>
+                        <td>
+                          <Button
+                              variant="danger"
+                              onClick={() => deleteMember(`${id}`, member.username)}
+                              disabled={deleteLoading}
+                          >
+                            Live group
+                          </Button>
+                        </td>
+                      </tr>
+                  )
+                }
+                if(userName !== owner){
+                  return (
+                      <tr key={`group${index}`} className="text-center">
+                        <td>{member.username}</td>
+                        <td>
+                        </td>
+                      </tr>
+                  )
                 }
                 return (
                     <tr key={`group${index}`} className="text-center">
