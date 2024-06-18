@@ -1,10 +1,11 @@
 import {Button, Col, Form, Row, Table} from "react-bootstrap";
 import {Formik, FormikValues} from "formik";
 import * as yup from "yup";
-import {FC} from "react";
+import {FC, useState} from "react";
 import {useSessionContext} from "../../../hooks/useSessionContext.tsx";
 import axios from "axios";
 import {useParams} from "react-router-dom";
+import {useToaster} from "../../../hooks/useToaster.tsx";
 
 interface Member {
   username: string;
@@ -19,25 +20,33 @@ interface ManageGroupsProps {
 const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
   const {userName, tokens} = useSessionContext()
   const {id} = useParams()
+  const {show} = useToaster()
   const schema = yup.object().shape({
     name: yup.string().required('Group name is required')
   });
+  const [deleteLoading, setDeleteLoading] = useState(false)
+
 
   const deleteMember = async (groupId: string, username: string) => {
     try {
-      const response = await axios.delete(`/annotations/groups/${groupId}/delete_member`, {
+      setDeleteLoading(true)
+      await axios.delete(`/annotations/groups/${groupId}/delete_member`, {
         data: {username},
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + String(tokens?.access),
         },
       });
-      console.log(response);
+      show({title: "Success!", description: "Group member deleted.", bg: "success"})
+      // console.log(response);
       update()
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        show({title: "Error!", description: "Something went wrong.", bg: "danger"})
         console.log(error)
       }
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -51,9 +60,11 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
             }
           }
       )
+      show({title: "Success!", description: "Group member added.", bg: "success"})
       update()
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        show({title: "Error!", description: "Something went wrong.", bg: "danger"})
         console.log(error)
       }
     }
@@ -88,7 +99,13 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
                     <tr key={`group${index}`} className="text-center">
                       <td>{member.username}</td>
                       <td>
-                        <Button variant="danger" onClick={() => deleteMember(`${id}`, member.username)}>Delete</Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => deleteMember(`${id}`, member.username)}
+                            disabled={deleteLoading}
+                        >
+                          Delete
+                        </Button>
                       </td>
                     </tr>
                 )
