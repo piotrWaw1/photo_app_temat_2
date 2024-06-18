@@ -410,7 +410,7 @@ class GroupDeleteMemberAPIView(APIView):
     def delete(self, request, *args, **kwargs):
 
         group_id = kwargs.get("group_id")
-        username = request.data.get("username")["username"]
+        username = request.data.get("username")
 
         group = get_object_or_404(Group, id=group_id, owner=request.user)
 

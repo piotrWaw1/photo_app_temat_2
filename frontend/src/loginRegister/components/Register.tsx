@@ -3,6 +3,7 @@ import {Formik} from "formik";
 import * as yup from "yup";
 import useRegister from "../../hooks/useRegister.tsx";
 import SubmitButton from "../../utils/components/SubmitButton.tsx";
+
 export default function Register() {
 
   const {register, loading} = useRegister()

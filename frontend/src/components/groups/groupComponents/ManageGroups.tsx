@@ -23,6 +23,23 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
     name: yup.string().required('Group name is required')
   });
 
+  const deleteMember = async (groupId: string, username: string) => {
+    try {
+      const response = await axios.delete(`/annotations/groups/${groupId}/delete_member`, {
+        data: {username},
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + String(tokens?.access),
+        },
+      });
+      console.log(response);
+      update()
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error)
+      }
+    }
+  }
 
   const addMember = async (data: FormikValues) => {
     try {
@@ -71,7 +88,7 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update}) => {
                     <tr key={`group${index}`} className="text-center">
                       <td>{member.username}</td>
                       <td>
-                        <Button variant="danger">Delete</Button>
+                        <Button variant="danger" onClick={() => deleteMember(`${id}`, member.username)}>Delete</Button>
                       </td>
                     </tr>
                 )
