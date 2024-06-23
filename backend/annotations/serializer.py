@@ -53,7 +53,6 @@ class PhotoSerializer(serializers.ModelSerializer):
 
     owner = serializers.ReadOnlyField(source="owner.username")
     owner_id = serializers.ReadOnlyField(source="owner.id")
-    image_url = serializers.ImageField(required=False)
     annotations = AnnotationSerializer(many=True, read_only=True)
 
     class Meta:
@@ -64,7 +63,6 @@ class PhotoSerializer(serializers.ModelSerializer):
             "owner_id",
             "image",
             "title",
-            "image_url",
             "uploaded_on",
             "annotations",
         ]
