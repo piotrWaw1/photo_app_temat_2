@@ -2,10 +2,12 @@ import {Button, Col, Form, Row, Table} from "react-bootstrap";
 import {Formik, FormikValues} from "formik";
 import * as yup from "yup";
 import {FC, useState} from "react";
-import {useSessionContext} from "../../../hooks/useSessionContext.tsx";
+import {useSessionContext} from "../../../../hooks/useSessionContext.tsx";
 import axios from "axios";
 import {useParams} from "react-router-dom";
-import {useToaster} from "../../../hooks/useToaster.tsx";
+import {useToaster} from "../../../../hooks/useToaster.tsx";
+import OwnerOfGroup from "./OwnerOfGroup.tsx";
+import MemberOfGroup from "./MemberOfGroup.tsx";
 
 interface Member {
   username: string;
@@ -28,10 +30,11 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update, owner}) => 
   const [deleteLoading, setDeleteLoading] = useState(false)
 
 
-  const deleteMember = async (groupId: string, username: string) => {
+  const deleteMember = async (username: string) => {
     try {
+      console.log(username)
       setDeleteLoading(true)
-      await axios.delete(`/annotations/groups/${groupId}/delete_member`, {
+      await axios.delete(`/annotations/groups/${id}/delete_member`, {
         data: {username},
         headers: {
           'Content-Type': 'application/json',
@@ -85,57 +88,10 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update, owner}) => 
               </tr>
               </thead>
               <tbody>
-              {data.map((member, index) => {
-                if (member.username === userName && data.length === 1) {
-                  return (
-                      <tr key={`group${index}`} className="text-center">
-                        <td colSpan={2}>No members</td>
-                      </tr>
-                  )
-                }
-                if (member.username === userName && userName === owner) {
-                  return
-                }
-                if(member.username === userName){
-                  return (
-                      <tr key={`group${index}`} className="text-center">
-                        <td>{member.username}</td>
-                        <td>
-                          <Button
-                              variant="danger"
-                              onClick={() => deleteMember(`${id}`, member.username)}
-                              disabled={deleteLoading}
-                          >
-                            Live group
-                          </Button>
-                        </td>
-                      </tr>
-                  )
-                }
-                if(userName !== owner){
-                  return (
-                      <tr key={`group${index}`} className="text-center">
-                        <td>{member.username}</td>
-                        <td>
-                        </td>
-                      </tr>
-                  )
-                }
-                return (
-                    <tr key={`group${index}`} className="text-center">
-                      <td>{member.username}</td>
-                      <td>
-                        <Button
-                            variant="danger"
-                            onClick={() => deleteMember(`${id}`, member.username)}
-                            disabled={deleteLoading}
-                        >
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                )
-              })}
+              {userName === owner ?
+                  <OwnerOfGroup members={data} deleteFinction={deleteMember} deleteLoading={deleteLoading}/> :
+                  <MemberOfGroup members={data} deleteFinction={deleteMember} deleteLoading={deleteLoading} />
+              }
               </tbody>
             </Table>
           </Col>
@@ -172,7 +128,6 @@ const ManageGroups: FC<ManageGroupsProps> = ({data, loading, update, owner}) => 
                     </div>
                   </Form>
               )}
-
             </Formik>
           </Col>
         </Row>

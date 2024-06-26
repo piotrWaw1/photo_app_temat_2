@@ -303,7 +303,6 @@ class GroupDeleteAPIView(APIView):
     serializer_class = GroupSerializer
 
     def delete(self, request, *args, **kwargs):
-
         group_id = kwargs.get("group_id")
         group = get_object_or_404(Group, id=group_id, owner=request.user)
 
@@ -327,6 +326,7 @@ class GroupListAPIView(APIView):
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class GroupDetailByIdAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
@@ -347,6 +347,8 @@ class GroupDetailByIdAPIView(APIView):
 
         serializer = GroupSerializer(group.first())
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 # class GroupListByNameAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 #     serializer_class = GroupSerializer
@@ -410,9 +412,21 @@ class GroupDeleteMemberAPIView(APIView):
     def delete(self, request, *args, **kwargs):
 
         group_id = kwargs.get("group_id")
+        print(kwargs.get("group_id"))
         username = request.data.get("username")
+        print(request.data.get("username"))
+        # group = get_object_or_404(Group, id=group_id, owner=request.user)
+        group = get_object_or_404(Group, id=group_id)
 
-        group = get_object_or_404(Group, id=group_id, owner=request.user)
+        if group.members.filter(
+                id=request.user.id).exists() and username == request.user.username and group.owner != username:
+            user = get_user_model().objects.get(username=username)
+            if group.members.filter(id=user.id).exists():
+                group.members.remove(user)
+                return Response(
+                    {"message": "User removed from group successfully"},
+                    status=status.HTTP_200_OK,
+                )
 
         if request.user != group.owner:
             return Response(
@@ -461,7 +475,6 @@ class PhotoShareAPIView(APIView):
         photo_id = request.data.get("photo_id")
         group_id = kwargs.get("group_id")
 
-
         photo = get_object_or_404(Photo, id=photo_id, owner=user)
         group = get_object_or_404(Group, id=group_id)
         if not (group.owner == user or group.members.filter(id=user.id).exists()):
@@ -480,6 +493,7 @@ class PhotoShareAPIView(APIView):
             {"message": "Photo shared with group successfully"},
             status=status.HTTP_200_OK
         )
+
 
 class PhotoShareAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -489,7 +503,6 @@ class PhotoShareAPIView(APIView):
         photo_id = request.data.get("photo_id")
         group_id = kwargs.get("group_id")
 
-
         photo = get_object_or_404(Photo, id=photo_id, owner=user)
         group = get_object_or_404(Group, id=group_id)
         if not (group.owner == user or group.members.filter(id=user.id).exists()):
@@ -508,6 +521,7 @@ class PhotoShareAPIView(APIView):
             {"message": "Photo shared with group successfully"},
             status=status.HTTP_200_OK
         )
+
 
 class PhotoListGroupAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -527,6 +541,7 @@ class PhotoListGroupAPIView(APIView):
         photos = group.group_photos.all()
         serializer = PhotoSerializer(photos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class PhotoDeleteFromGroupAPIView(APIView):
     permission_classes = [IsAuthenticated]

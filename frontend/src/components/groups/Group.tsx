@@ -1,4 +1,4 @@
-import ManageGroups from "./groupComponents/ManageGroups.tsx";
+import ManageGroups from "./groupComponents/groupMembers/ManageGroups.tsx";
 import ManageImages from "./groupComponents/ManageImages.tsx";
 import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
