@@ -197,8 +197,8 @@ class GroupAPITestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
-            username=f'testuser', 
-            email=f'testuser@example.com', 
+            username=f'testuser_{uuid.uuid4()}', 
+            email=f'testuser_{uuid.uuid4()}@example.com', 
             password='password123'
         )
         self.client.force_authenticate(user=self.user)
@@ -210,7 +210,7 @@ class GroupAPITestCase(TestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['name'], 'New Test Group')
-        self.assertIn(self.user.username, response.data['members'])
+        self.assertIn(self.user.username, [member['username'] for member in response.data['members']])
 
     def test_delete_group(self):
         url = reverse('group_delete', kwargs={'group_id': self.group.id})
