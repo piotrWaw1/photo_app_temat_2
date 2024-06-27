@@ -89,4 +89,73 @@ class PhotoCreateAPIViewTestCase(TestCase):
         response = self.client.delete(reverse('photo_delete', kwargs={'pk': photo.pk}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertIn('You do not have permission to delete this photo.', response.data['detail'])
-# Create your tests here.
+
+class PhotoGetAPIViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='password123')
+        self.client.force_authenticate(user=self.user)
+        self.url_get = reverse('get_single_photo', kwargs={'id': 1})
+
+    def test_get_photo(self):
+        """
+        Test pobierania pojedynczego zdjęcia.
+        """
+        photo = Photo.objects.create(owner=self.user, title='Test Photo', image='./media/test_image.jpg')
+        response = self.client.get(reverse('get_single_photo', kwargs={'id': photo.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], 'Test Photo')
+
+    def test_get_photo_not_found(self):
+        """
+        Test próby pobrania nieistniejącego zdjęcia.
+        """
+        response = self.client.get(self.url_get)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class PhotoAnnotateAPIViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='password123')
+        self.client.force_authenticate(user=self.user)
+        self.photo = Photo.objects.create(owner=self.user, title='Test Photo', image='./media/test_image.jpg')
+        self.url_annotate = reverse('photo_patch', kwargs={'pk': self.photo.pk})
+
+    def test_annotate_photo(self):
+        """
+        Test annotacji zdjęcia.
+        """
+        response = self.client.get(self.url_annotate)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+
+
+class AnnotationAPIViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='password123')
+        self.client.force_authenticate(user=self.user)
+        self.photo = Photo.objects.create(owner=self.user, title='Test Photo', image='./media/test_image.jpg')
+        self.url_annotate = reverse('add_annotation', kwargs={'id': self.photo.pk})
+
+    def test_create_annotation(self):
+        """
+        Test tworzenia nowej anotacji.
+        """
+        data = {'anData': ['Annotation 1', 'Annotation 2']}
+        response = self.client.post(self.url_annotate, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 2)
+
+    def test_create_annotation_no_permission(self):
+        """
+        Test tworzenia anotacji bez uprawnień.
+        """
+        another_user = User.objects.create_user(username='anotheruser', email=f'another_{uuid.uuid4()}@gmail.com', password='anotherpass')
+        photo = Photo.objects.create(owner=another_user, title='Another Photo', image='another_image.jpg')
+        response = self.client.post(reverse('add_annotation', kwargs={'id': photo.pk}), {'anData': ['Annotation']}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
