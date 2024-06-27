@@ -2,17 +2,19 @@ import {Button, Modal} from "react-bootstrap";
 import {FC} from "react";
 import axios from "axios";
 import {useSessionContext} from "../../hooks/useSessionContext.tsx";
+import {useToaster} from "../../hooks/useToaster.tsx";
 
 interface ModalDeleteProps {
-  show: boolean;
+  showModal: boolean;
   pictureTitle: string
   handleClose: () => void;
   id: number;
 }
 
 const ModalDelete: FC<ModalDeleteProps> = (props) => {
-  const {show, handleClose, id, pictureTitle} = props
+  const {showModal, handleClose, id, pictureTitle} = props
   const {tokens} = useSessionContext()
+  const {show} = useToaster()
   const imgDelete = async () => {
     try {
       const response = await axios.delete(`/annotations/photos/${id}`, {
@@ -21,9 +23,12 @@ const ModalDelete: FC<ModalDeleteProps> = (props) => {
           Authorization: 'Bearer ' + String(tokens?.access),
         }
       })
+      show({title:"Success", description:`Image deleted`, bg:"success"})
       console.log(response.data)
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        const {response} = error
+        show({title:"Error", description:`${response?.data.detail}`, bg:"danger"})
         console.log(error)
       }
     } finally {
@@ -32,7 +37,7 @@ const ModalDelete: FC<ModalDeleteProps> = (props) => {
   }
 
   return (
-      <Modal show={show} onHide={handleClose} animation={false}>
+      <Modal show={showModal} onHide={handleClose} animation={false}>
         <Modal.Header closeButton>
           <Modal.Title>Delete</Modal.Title>
         </Modal.Header>

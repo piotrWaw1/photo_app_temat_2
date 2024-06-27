@@ -3,7 +3,7 @@ import {LinkContainer} from "react-router-bootstrap";
 import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 
 export default function HeaderLog(){
-  const {removeToken} = useSessionContext()
+  const {removeToken, userName} = useSessionContext()
   return(
       <Navbar expand="lg" className="bg-body-tertiary mb-5">
         <Container>
@@ -26,7 +26,8 @@ export default function HeaderLog(){
                 <Nav.Link>LIST_ALL_IMAGES</Nav.Link>
               </LinkContainer>
             </Nav>
-              <Nav.Link onClick={removeToken}>Log out</Nav.Link>
+              <Nav.Link className="fw-bold text-primary" onClick={removeToken}>Log out</Nav.Link>
+            <span className="ms-3">User: <b>{userName}</b></span>
           </Navbar.Collapse>
         </Container>
       </Navbar>

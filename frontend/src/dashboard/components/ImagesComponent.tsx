@@ -5,6 +5,7 @@ import {format} from "date-fns";
 import {Badge, Col} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import ModalDelete from "./ModalDelete.tsx";
+import {useSessionContext} from "../../hooks/useSessionContext.tsx";
 
 interface Annotation {
   text: string
@@ -30,13 +31,14 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
 
   const [show, setShow] = useState(false)
   const [selectedImg, setSelectedImg] = useState<ImgData>()
+  const {userName} = useSessionContext()
   const handleClose = () => setShow(false)
   const handleOpen = (img: ImgData) => {
     setSelectedImg(img)
     setShow(true)
   }
   const formatDate = (value: string) => {
-    return format(new Date(value), "yyyy-MM-dd HH:mm")
+    return format(new Date(value), "yyyy-MM-dd")
   }
 
 
@@ -57,17 +59,22 @@ const ImagesComponent: FC<ImagesComponentProps> = ({data}) => {
                   <Link to={`${img.id}`}>
                     <Button variant="primary" className="mx-2">Info</Button>
                   </Link>
-                  <Button variant="danger" onClick={() => handleOpen(img)}>
-                    Delete
-                  </Button>
+                  {userName === img.owner &&
+                      <Button variant="danger" onClick={() => handleOpen(img)}>
+                          Delete
+                      </Button>
+                  }
                 </Card.Body>
-                <p className="ps-3">Created: {formatDate(img.uploaded_on)}</p>
+                <div className="ps-3 d-flex flex-row gap-3">
+                  <p>Created: {formatDate(img.uploaded_on)}</p>
+                  <p>Owner: <b>{img.owner}</b></p>
+                </div>
               </Card>
             </Col>
         ))}
         {selectedImg &&
             <ModalDelete
-                show={show}
+                showModal={show}
                 pictureTitle={selectedImg.title}
                 handleClose={handleClose}
                 id={selectedImg.id}

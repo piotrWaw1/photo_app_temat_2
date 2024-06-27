@@ -1,5 +1,5 @@
 import ManageGroups from "./groupComponents/groupMembers/ManageGroups.tsx";
-import ManageImages from "./groupComponents/ManageImages.tsx";
+import ManageImages from "./groupComponents/groupImages/ManageImages.tsx";
 import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {useParams} from "react-router-dom";
@@ -55,7 +55,7 @@ export default function Group() {
             loading={loading}
             owner={groupData?.owner || ''}
             update={groupMembers}/>
-        <ManageImages/>
+        <ManageImages owner={groupData?.owner || ''}/>
       </>
   )
 }

@@ -50,41 +50,6 @@ export default function Groups() {
     getGroups().then()
   }, [getGroups, tokens?.access]);
 
-
-  const updateGroup = async (groupId: number, groupData) => {
-    try {
-      const response = await axios.patch(`/annotations/groups/${groupId}/edit`, groupData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokens?.access}`,
-        },
-      });
-
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
-  const addGroupMember = async (groupId: number, username) => {
-    try {
-      const response = await axios.post(`/annotations/groups/${groupId}/add_member`, username, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokens?.access}`,
-        },
-      });
-
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
   const [selectedGroup, setSelectedGroup] = useState<Pick<GroupData, "id" | "name">>({name: '', id: 0})
   const [showDelete, setShowDelete] = useState(false)
   const handleOpenDelete = (data: GroupData) => {
@@ -92,119 +57,6 @@ export default function Groups() {
     setSelectedGroup({id: data.id, name: data.name})
   }
   const handleCloseDelete = () => setShowDelete(false)
-
-  const deleteGroupMember = async (groupId: number, username) => {
-    try {
-      const response = await axios.delete(`/annotations/groups/${groupId}/delete_member`, {
-        data: {username},
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + String(tokens?.access),
-        },
-      });
-
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
-
-  const getGroupByName = async (groupId) => {
-    try {
-      const response = await axios.get(`/annotations/groups/${groupId}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + String(tokens?.access),
-          }
-        })
-
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
-
-  const addPhotoToGroup = async (groupId: number, photoId) => {
-    try {
-      const response = await axios.post(`/annotations/groups/${groupId}/add_photo`, photoId, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokens?.access}`,
-        },
-      });
-
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
-
-
-  const getAllGroupPhotos = async (groupId) => {
-    try {
-      const response = await axios.get(`/annotations/groups/${groupId}/get_all_photos`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + String(tokens?.access),
-          }
-        })
-
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
-
-
-  const deletePhotoFromGroup = async (groupId: number, photoId: number) => {
-    try {
-      const response = await axios.delete(`/annotations/groups/${groupId}/remove_photo/${photoId}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + String(tokens?.access),
-        },
-      });
-
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
-
-
-  const deleteAnnotation = async (annotationId: number, id) => {
-    try {
-      const response = await axios.delete(`/annotations/photo/delete_annotation/${id}/${annotationId}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: 'Bearer ' + String(tokens?.access),
-            }
-          })
-      
-      console.log(response);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(error)
-      }
-    }
-  }
 
   return (
       <>
@@ -245,21 +97,6 @@ export default function Groups() {
             handleClose={handleCloseDelete}
             update={getGroups}
         />
-
-        {/* delete works only for owner -- veri gut */}
-        {/*<button onClick={() => deleteGroup(12)}>Delete</button>*/}
-
-        {/*<button onClick={() => deleteGroupMember(1, {'username': 'qqqq'})}>deleteGroupMember</button>*/}
-        {/* updateGroup works for owner and member */}
-        <button onClick={() => updateGroup(1, {'name': "other name"})}>updateGroup</button>
-        {/*<button onClick={() => addGroupMember(2, {'username': 'qqqq'})}>addGroupMember</button>*/}
-        {/*<button onClick={() => getGroupByName(14)}>getGroupByID</button>*/}
-        <button onClick={() => addPhotoToGroup(17, {'photo_id': 1})}>addPhotoToGroup</button>
-        <button onClick={() => getAllGroupPhotos(17)}>getAllGroupPhotos</button>
-        <button onClick={() => deletePhotoFromGroup(17,5)}>deletePhotoFromGroup</button>
-        <button onClick={() => deleteAnnotation(41,5)}>deleteAnnotation</button>
-        
-
       </>
   )
 }

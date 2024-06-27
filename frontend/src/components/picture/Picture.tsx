@@ -16,7 +16,7 @@ import SubmitButton from "../../utils/components/SubmitButton.tsx";
 export default function Picture() {
 
   const {picData, anData, anLoading, annotateImage, getData, picLoading, picError} = usePicture()
-  const {tokens} = useSessionContext()
+  const {tokens, userName} = useSessionContext()
   const {show} = useToaster()
   const {id} = useParams()
 
@@ -118,7 +118,7 @@ export default function Picture() {
                                 <ErrorMessage name="anotations" component="div"/>
                                 {anData.length !== 0 &&
                                     <SubmitButton isLoading={anotatiomsLaoding} text="Save"/>
-                                    // <Button type="submit">Save</Button>
+                                  // <Button type="submit">Save</Button>
                                 }
                                 {anData.length === 0 && "No anotation"}
                               </Form>
@@ -143,7 +143,9 @@ export default function Picture() {
                               <td>{an.user}</td>
                               <td>{format(new Date(an.created_at), "yyyy-MM-dd")}</td>
                               <td>
-                                <Button onClick={() => deleteAnnotation(an.id)}>Delete</Button>
+                                {(picData?.owner === userName || an.user === userName) &&
+                                    <Button onClick={() => deleteAnnotation(an.id)}>Delete</Button>
+                                }
                               </td>
                             </tr>
                         ))}
@@ -196,7 +198,7 @@ export default function Picture() {
             </Row>
         }
 
-    
+
       </>
   )
 }
