@@ -142,19 +142,19 @@ class PhotoAnnotateAPIView(APIView):
 
         # detected_objects = [] for lists
         detected_objects = set()
-        image_result = f"result_{user}.jpg"
+        image_result_2 = f"media/result_{user}.jpg"
 
         # return from model list
         for result in results:
             # making bounding boxes and saving to result.jpg
-            # boxes = result.boxes  # Boxes object for bounding box outputs
-            # masks = result.masks  # Masks object for segmentation masks outputs
-            # keypoints = result.keypoints  # Keypoints object for pose outputs
-            # probs = result.probs  # Probs object for classification outputs
-            # obb = result.obb  # Oriented boxes object for OBB outputs
-            # image_result = result
-            # result.show()  # display to screen
-            result.save(filename=image_result)  # save to disk
+            boxes = result.boxes  # Boxes object for bounding box outputs
+            masks = result.masks  # Masks object for segmentation masks outputs
+            keypoints = result.keypoints  # Keypoints object for pose outputs
+            probs = result.probs  # Probs object for classification outputs
+            obb = result.obb  # Oriented boxes object for OBB outputs
+            image_result = result
+            #result.show()  # display to screen
+            result.save(filename=image_result_2)  # save to disk
             if result.boxes:
                 for box in result.boxes:
                     class_id = int(box.cls)
@@ -162,9 +162,10 @@ class PhotoAnnotateAPIView(APIView):
 
                     # detected_objects.append(object_name) for lists
                     detected_objects.add(object_name)
-        image_url = f"{image_result}"  # TODO: Potrzebny link do zdjęcia
+        image_url = f"{image_result_2}"
+        #os.remove(image_result_2)
         # removing img from main folder
-        # os.remove(str(photo.image)[7:])
+        os.remove(str(photo.image)[7:])
 
         return Response({'image_url': image_url, 'annotations': detected_objects}, status=status.HTTP_200_OK)
 
