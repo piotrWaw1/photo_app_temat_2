@@ -11,6 +11,11 @@ interface Annotations {
   user: string;
 }
 
+interface AIAnnotations{
+  annotations:string[];
+  image_url: string;
+}
+
 interface PicData {
   id: number;
   image: string;
@@ -27,7 +32,7 @@ export default function usePicture() {
   const {tokens} = useSessionContext()
   const [picData, setPicData] = useState<PicData | null>(null)
   const [picError, setPicError] = useState(false)
-  const [anData, setAnData] = useState<string[]>([])
+  const [anData, setAnData] = useState<AIAnnotations>()
   const [anLoading, setAnLoading] = useState(false)
   const [picLoading, setPicLoading] = useState(false)
 
@@ -63,14 +68,15 @@ export default function usePicture() {
   const annotateImage = async () => {
     try {
       setAnLoading(true)
-      const {data} = await axios.get<string[]>(`/annotations/photos_edit/${id}`, {
+      const {data} = await axios.get<AIAnnotations>(`/annotations/photos_edit/${id}`, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + String(tokens?.access),
         }
       })
+      console.log(data)
       setAnData(data)
-      if (data.length) {
+      if (data.annotations.length) {
         show({title: "Success", description: "Annotation found!", bg: "success"})
       } else {
         show({title: "Error", description: "Annotation not found!", bg: "danger"})

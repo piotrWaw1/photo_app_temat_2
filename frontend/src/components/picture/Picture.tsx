@@ -90,10 +90,11 @@ export default function Picture() {
                 <Col>
                     <h2>Annotations</h2>
                     <h3>AI annotations</h3>
+                    <Image src={`http://127.0.0.1:8000/${anData?.image_url}`} width={800} rounded/>
                     <div>
                         <Button disabled={anLoading} onClick={annotateImage} className="mb-3">
                           {anLoading && <Spinner size="sm" animation="border" className="me-2"/>}
-                            Anotate
+                            Annotate
                         </Button>
                         <Formik
                             initialValues={{anotations: []}}
@@ -102,7 +103,7 @@ export default function Picture() {
                         >
                           {({handleChange, handleSubmit, touched, errors}) => (
                               <Form onSubmit={handleSubmit}>
-                                {anData.length !== 0 && anData.map((item, id) => (
+                                {anData?.annotations.length !== 0 && anData?.annotations.map((item, id) => (
                                     <Form.Group className="mb-3" id="formGridCheckbox" key={id}>
                                       <Form
                                           onChange={handleChange}
@@ -116,11 +117,11 @@ export default function Picture() {
                                     </Form.Group>
                                 ))}
                                 <ErrorMessage name="anotations" component="div"/>
-                                {anData.length !== 0 &&
+                                {anData?.annotations.length !== 0 &&
                                     <SubmitButton isLoading={anotatiomsLaoding} text="Save"/>
                                   // <Button type="submit">Save</Button>
                                 }
-                                {anData.length === 0 && "No anotation"}
+                                {anData?.annotations.length === 0 && "No anotation"}
                               </Form>
                           )}
 
