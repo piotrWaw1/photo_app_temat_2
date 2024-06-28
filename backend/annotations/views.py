@@ -142,7 +142,7 @@ class PhotoAnnotateAPIView(APIView):
 
         # detected_objects = [] for lists
         detected_objects = set()
-        image_result_2 = f"media/result_{user}.jpg"
+        image_result_2 = f"media/result_{photo_id}.jpg"
 
         # return from model list
         for result in results:
@@ -166,6 +166,7 @@ class PhotoAnnotateAPIView(APIView):
         #os.remove(image_result_2)
         # removing img from main folder
         os.remove(str(photo.image)[7:])
+        print(image_url)
 
         return Response({'image_url': image_url, 'annotations': detected_objects}, status=status.HTTP_200_OK)
 
